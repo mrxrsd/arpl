@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>ARPL</id>
+    <version>$version$</version>
+    <title>ARPL (Advanced Result Pattern Library)</title>
+    <authors>mrxrsd</authors>
+    <owners>mrxrsd</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="file">LICENSE.md</license>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/mrxrsd/arpl</projectUrl>
+    <description>A lightweight C# library providing robust discriminated unions for error handling and functional programming patterns. ARPL offers two main types: Either&lt;L,R&gt; for generic discriminated unions and SResult&lt;R&gt; for specialized success/error handling.</description>
+    <tags>either monad result pattern functional-programming error-handling discriminated-unions</tags>
+    <dependencies>
+      <group targetFramework="net6" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\LICENSE.md" target="" />
+    <file src="..\README.md" target="" />
+    <file src="bin\Release\net6\arpl.dll" target="lib\net6" />
+  </files>
+</package>
