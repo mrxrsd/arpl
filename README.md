@@ -2,6 +2,14 @@
 
 A lightweight C# library providing robust discriminated unions for error handling and functional programming patterns. ARPL offers two main types: `Either<L,R>` for generic discriminated unions and `SResult<R>` for specialized success/error handling.
 
+## Installation
+
+Install via NuGet:
+
+```shell
+Install-Package ARPL
+```
+
 ## Features 🚀
 
 - **Either<L,R>** - A generic discriminated union that can hold one of two possible types
