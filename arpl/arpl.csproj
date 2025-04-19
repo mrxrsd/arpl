@@ -1,9 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6</TargetFramework>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    
+    <!-- Package Info -->
+    <PackageId>ARPL</PackageId>
+    <Title>ARPL (Advanced Result Pattern Library)</Title>
+    <Authors>mrxrsd</Authors>
+    <Description>A lightweight C# library providing robust discriminated unions for error handling and functional programming patterns. ARPL offers two main types: Either&lt;L,R&gt; for generic discriminated unions and SResult&lt;R&gt; for specialized success/error handling.</Description>
+    <PackageTags>either;monad;result;pattern;functional-programming;error-handling;discriminated-unions</PackageTags>
+    <PackageProjectUrl>https://github.com/mrxrsd/arpl</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.md" Pack="true" PackagePath="" />
+    <None Include="..\README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
 
 </Project>

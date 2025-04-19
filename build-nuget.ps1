@@ -36,12 +36,18 @@ dotnet test -c $configuration --no-build
 # Create NuGet package
 Write-Host "Creating NuGet package..."
 
+# Clean previous builds
+Write-Host "Cleaning previous builds..."
+dotnet clean -c $configuration
+Remove-Item -Path ".\artifacts" -Recurse -Force -ErrorAction SilentlyContinue
+New-Item -ItemType Directory -Path ".\artifacts" -Force | Out-Null
+
+# Build and pack
+Write-Host "Building and packing..."
 dotnet pack .\arpl\arpl.csproj `
     -c $configuration `
     /p:Version=$version `
     /p:PackageVersion=$version `
-    /p:NuspecFile=arpl.nuspec `
-    /p:NuspecProperties="version=$version;configuration=$configuration" `
     --output .\artifacts
 
 Write-Host "Build completed successfully!"
