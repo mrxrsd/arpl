@@ -84,12 +84,12 @@ namespace Arpl.Core
 
 
         /// <summary>
-        /// Realiza o pattern matching no resultado, executando a função correspondente ao sucesso ou ao erro.
+        /// Performs pattern matching on the result, executing the corresponding function for success or error.
         /// </summary>
-        /// <typeparam name="O">O tipo do valor de retorno.</typeparam>
-        /// <param name="fail">Função a ser executada em caso de erro.</param>
-        /// <param name="success">Função a ser executada em caso de sucesso.</param>
-        /// <returns>O valor retornado pela função correspondente.</returns>
+        /// <typeparam name="O">The type of the return value.</typeparam>
+        /// <param name="fail">Function to be executed in case of error.</param>
+        /// <param name="success">Function to be executed in case of success.</param>
+        /// <returns>The value returned by the corresponding function.</returns>
         public O Match<O>(Func<Error,O> fail, Func<R,O> success)
         {
             if (IsFail) return fail(ErrorValue);
@@ -98,12 +98,12 @@ namespace Arpl.Core
         }
 
         /// <summary>
-        /// Realiza o pattern matching assíncrono no resultado, executando a função correspondente ao sucesso ou ao erro.
+        /// Performs asynchronous pattern matching on the result, executing the corresponding function for success or error.
         /// </summary>
-        /// <typeparam name="O">O tipo do valor de retorno.</typeparam>
-        /// <param name="fail">Função assíncrona a ser executada em caso de erro.</param>
-        /// <param name="success">Função assíncrona a ser executada em caso de sucesso.</param>
-        /// <returns>O valor retornado pela função correspondente.</returns>
+        /// <typeparam name="O">The type of the return value.</typeparam>
+        /// <param name="fail">Async function to be executed in case of error.</param>
+        /// <param name="success">Async function to be executed in case of success.</param>
+        /// <returns>The value returned by the corresponding function.</returns>
         public async Task<O> MatchAsync<O>(Func<Error,Task<O>> fail, Func<R,Task<O>> success)
         {
             if (IsFail) return await fail(ErrorValue);
@@ -112,22 +112,34 @@ namespace Arpl.Core
         }
 
         /// <summary>
-        /// Transforma o valor de sucesso utilizando a função fornecida, caso seja sucesso.
+        /// Transforms the success value using the provided function, if it's a success.
         /// </summary>
-        /// <typeparam name="O">O tipo do novo valor de sucesso.</typeparam>
-        /// <param name="mapFn">Função de transformação do valor de sucesso.</param>
-        /// <returns>Um novo SResult com o valor de sucesso transformado, ou o erro original.</returns>
+        /// <typeparam name="O">The type of the new success value.</typeparam>
+        /// <param name="mapFn">Transformation function for the success value.</param>
+        /// <returns>A new SResult with the transformed success value, or the original error.</returns>
         public SResult<O> Map<O>(Func<R,O> mapFn)
         {
             if (IsSuccess) return SResult<O>.Success(mapFn(SuccessValue));
             return SResult<O>.Error(ErrorValue);
         }
 
-                /// <summary>
-        /// Conversão implícita de SResult para Either.
+        /// <summary>
+        /// Transforms the success value using the provided async function, if it's a success.
         /// </summary>
-        /// <param name="result">O resultado a ser convertido.</param>
-        /// <returns>Uma instância de Either representando o sucesso ou o erro.</returns>
+        /// <typeparam name="O">The type of the new success value.</typeparam>
+        /// <param name="mapFn">The async transformation function for the success value.</param>
+        /// <returns>A new SResult with the transformed success value, or the original error.</returns>
+        public async Task<SResult<O>> MapAsync<O>(Func<R,Task<O>> mapFn)
+        {
+            if (IsSuccess) return SResult<O>.Success(await mapFn(SuccessValue));
+            return SResult<O>.Error(ErrorValue);
+        }
+
+        /// <summary>
+        /// Implicit conversion from SResult to Either.
+        /// </summary>
+        /// <param name="result">The result to be converted.</param>
+        /// <returns>An Either instance representing the success or error.</returns>
         public static implicit operator Either<Error,R>(SResult<R> result)
         {
             return result switch

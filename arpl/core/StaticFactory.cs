@@ -5,37 +5,37 @@ namespace Arpl.Core
     public static class StaticFactory
     {
                 /// <summary>
-        /// Cria um novo resultado de sucesso com o valor especificado.
+        /// Creates a new success result with the specified value.
         /// </summary>
-        /// <typeparam name="T">O tipo do valor de sucesso.</typeparam>
-        /// <param name="value">O valor de sucesso.</param>
-        /// <returns>Uma nova instância de SResult representando o sucesso.</returns>
+        /// <typeparam name="T">The type of the success value.</typeparam>
+        /// <param name="value">The success value.</param>
+        /// <returns>A new SResult instance representing success.</returns>
         public static SResult<T> Success<T>(T value) => SResult<T>.Success(value);
 
                 /// <summary>
-        /// Cria um novo resultado de falha com o erro especificado.
+        /// Creates a new failure result with the specified error.
         /// </summary>
-        /// <typeparam name="T">O tipo do valor de sucesso esperado.</typeparam>
-        /// <param name="value">O erro.</param>
-        /// <returns>Uma nova instância de SResult representando o erro.</returns>
+        /// <typeparam name="T">The type of the expected success value.</typeparam>
+        /// <param name="value">The error.</param>
+        /// <returns>A new SResult instance representing the error.</returns>
         public static SResult<T> Fail<T>(Error value) => SResult<T>.Error(value);
 
                 /// <summary>
-        /// Cria uma nova instância de Either contendo o valor à esquerda.
+        /// Creates a new Either instance containing the left value.
         /// </summary>
-        /// <typeparam name="L">O tipo do valor à esquerda.</typeparam>
-        /// <typeparam name="R">O tipo do valor à direita.</typeparam>
-        /// <param name="value">O valor à esquerda.</param>
-        /// <returns>Uma nova instância de Either contendo o valor à esquerda.</returns>
+        /// <typeparam name="L">The type of the left value.</typeparam>
+        /// <typeparam name="R">The type of the right value.</typeparam>
+        /// <param name="value">The left value.</param>
+        /// <returns>A new Either instance containing the left value.</returns>
         public static Either<L,R> Left<L,R>(L value) => Either<L,R>.Left(value);
 
         /// <summary>
-        /// Cria uma nova instância de Either contendo o valor à direita.
+        /// Creates a new Either instance containing the right value.
         /// </summary>
-        /// <typeparam name="L">O tipo do valor à esquerda.</typeparam>
-        /// <typeparam name="R">O tipo do valor à direita.</typeparam>
-        /// <param name="value">O valor à direita.</param>
-        /// <returns>Uma nova instância de Either contendo o valor à direita.</returns>
+        /// <typeparam name="L">The type of the left value.</typeparam>
+        /// <typeparam name="R">The type of the right value.</typeparam>
+        /// <param name="value">The right value.</param>
+        /// <returns>A new Either instance containing the right value.</returns>
         public static Either<L,R> Right<L,R>(R value) => Either<L,R>.Right(value);
     }
 }

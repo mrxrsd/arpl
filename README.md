@@ -49,6 +49,12 @@ await rightValue.MatchAsync(
 
 // Mapping right value
 Either<string, string> mapped = rightValue.Map(val => $"Number: {val}");
+
+// Async mapping
+Either<string, string> asyncMapped = await rightValue.MapAsync(async val => {
+    await Task.Delay(10);
+    return $"Number: {val}";
+});
 ```
 
 #### Using SResult<R>
@@ -75,6 +81,12 @@ await error.MatchAsync(
 // Mapping success value
 SResult<string> mapped = success.Map(val => $"Result: {val}");
 
+// Async mapping
+SResult<string> asyncMapped = await success.MapAsync(async val => {
+    await Task.Delay(10);
+    return $"Result: {val}";
+});
+
 // Check result type
 if (success.IsSuccess)
     Console.WriteLine($"Success value: {success.SuccessValue}");
@@ -93,6 +105,7 @@ if (error.IsFail)
 - `Match` - Pattern matching for transforming or handling the contained value
 - `MatchAsync` - Asynchronous pattern matching for handling the contained value
 - `Map` - Transforms the right value using a mapping function (if present)
+- `MapAsync` - Transforms the right value using an async mapping function (if present)
 
 ### SResult<R>
 
@@ -105,6 +118,7 @@ if (error.IsFail)
 - `Match` - Pattern matching for transforming or handling the result
 - `MatchAsync` - Asynchronous pattern matching for handling the result
 - `Map` - Transforms the success value using a mapping function (if present)
+- `MapAsync` - Transforms the success value using an async mapping function (if present)
 
 ## Implicit Conversions
 
@@ -156,6 +170,51 @@ var right = Right<string, int>(42); // Either<string, int>
 - `Right<L, R>(R value)`: Creates an `Either<L, R>` with a right value.
 
 These methods make it easier to create values for functional flows and tests, making your code cleaner and more readable.
+
+## Bespoke Errors
+
+ARPL allows you to create custom error types by extending the `Error` class. This enables you to create domain-specific errors that carry meaningful context for your application:
+
+```csharp
+public record NotFoundError : Error
+{
+    public NotFoundError(string entityType, string identifier)
+    {
+        EntityType = entityType;
+        Identifier = identifier;
+    }
+
+    public string EntityType { get; }
+    public string Identifier { get; }
+    public override string Message => $"{EntityType} with id {Identifier} was not found";
+    public override bool IsExpected => true;
+}
+
+// Usage example:
+public async Task<SResult<User>> GetUserById(string userId)
+{
+    var user = await _repository.FindUserById(userId);
+    if (user == null)
+        return SResult<User>.Error(new NotFoundError("User", userId));
+
+    return SResult<User>.Success(user);
+}
+
+// Pattern matching with custom error
+var result = await GetUserById("123");
+var message = result.Match(
+    fail => fail is NotFoundError nf 
+        ? $"Could not find {nf.EntityType} {nf.Identifier}" 
+        : "Unknown error",
+    success => $"Found user: {success.Name}"
+);
+```
+
+Bespoke errors provide several benefits:
+1. Type-safe error handling with pattern matching
+2. Rich error context specific to your domain
+3. Clear distinction between expected and unexpected errors
+4. Consistent error handling across your application
 
 ## Contributing 🤝
 
