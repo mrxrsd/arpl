@@ -11,6 +11,33 @@ A lightweight C# library providing robust discriminated unions for error handlin
 - **Type-safe error handling** without exceptions
 - **Functional programming** friendly design
 
+## Type Features
+
+### Either<L,R>
+
+- `Left(L value)` - Creates a new Either instance containing a left value
+- `Right(R value)` - Creates a new Either instance containing a right value
+- `IsLeft` - Indicates if the instance contains a left value
+- `IsRight` - Indicates if the instance contains a right value
+- `Match` - Pattern matching for transforming or handling the contained value
+- `MatchAsync` - Asynchronous pattern matching for handling the contained value
+- `Map` - Transforms the right value using a mapping function (if present)
+- `MapAsync` - Transforms the right value using an async mapping function (if present)
+
+### SResult<R>
+
+- `Success(R value)` - Creates a new success result
+- `Error(Error value)` - Creates a new error result
+- `IsSuccess` - Indicates if the result represents success
+- `IsFail` - Indicates if the result represents an error
+- `SuccessValue` - Gets the success value
+- `ErrorValue` - Gets the error value
+- `Match` - Pattern matching for transforming or handling the result
+- `MatchAsync` - Asynchronous pattern matching for handling the result
+- `Map` - Transforms the success value using a mapping function (if present)
+- `MapAsync` - Transforms the success value using an async mapping function (if present)
+
+
 ## Getting Started 🏃
 
 ### Installation
@@ -89,32 +116,50 @@ if (success.IsSuccess)
 if (error.IsFail)
     Console.WriteLine($"Error value: {error.ErrorValue}");
 ```
+## Bespoke Errors
 
-## Type Features
+ARPL allows you to create custom error types by extending the `Error` class. This enables you to create domain-specific errors that carry meaningful context for your application:
 
-### Either<L,R>
+```csharp
+public record NotFoundError : Error
+{
+    public NotFoundError(string entityType, string identifier)
+    {
+        EntityType = entityType;
+        Identifier = identifier;
+    }
 
-- `Left(L value)` - Creates a new Either instance containing a left value
-- `Right(R value)` - Creates a new Either instance containing a right value
-- `IsLeft` - Indicates if the instance contains a left value
-- `IsRight` - Indicates if the instance contains a right value
-- `Match` - Pattern matching for transforming or handling the contained value
-- `MatchAsync` - Asynchronous pattern matching for handling the contained value
-- `Map` - Transforms the right value using a mapping function (if present)
-- `MapAsync` - Transforms the right value using an async mapping function (if present)
+    public string EntityType { get; }
+    public string Identifier { get; }
+    public override string Message => $"{EntityType} with id {Identifier} was not found";
+    public override bool IsExpected => true;
+}
 
-### SResult<R>
+// Usage example:
+public async Task<SResult<User>> GetUserById(string userId)
+{
+    var user = await _repository.FindUserById(userId);
+    if (user == null)
+        return SResult<User>.Error(new NotFoundError("User", userId));
 
-- `Success(R value)` - Creates a new success result
-- `Error(Error value)` - Creates a new error result
-- `IsSuccess` - Indicates if the result represents success
-- `IsFail` - Indicates if the result represents an error
-- `SuccessValue` - Gets the success value
-- `ErrorValue` - Gets the error value
-- `Match` - Pattern matching for transforming or handling the result
-- `MatchAsync` - Asynchronous pattern matching for handling the result
-- `Map` - Transforms the success value using a mapping function (if present)
-- `MapAsync` - Transforms the success value using an async mapping function (if present)
+    return SResult<User>.Success(user);
+}
+
+// Pattern matching with custom error
+var result = await GetUserById("123");
+var message = result.Match(
+    fail => fail is NotFoundError nf 
+        ? $"Could not find {nf.EntityType} {nf.Identifier}" 
+        : "Unknown error",
+    success => $"Found user: {success.Name}"
+);
+```
+
+Bespoke errors provide several benefits:
+1. Type-safe error handling with pattern matching
+2. Rich error context specific to your domain
+3. Clear distinction between expected and unexpected errors
+4. Consistent error handling across your application
 
 ## Implicit Conversions
 
@@ -166,51 +211,6 @@ var right = Right<string, int>(42); // Either<string, int>
 - `Right<L, R>(R value)`: Creates an `Either<L, R>` with a right value.
 
 These methods make it easier to create values for functional flows and tests, making your code cleaner and more readable.
-
-## Bespoke Errors
-
-ARPL allows you to create custom error types by extending the `Error` class. This enables you to create domain-specific errors that carry meaningful context for your application:
-
-```csharp
-public record NotFoundError : Error
-{
-    public NotFoundError(string entityType, string identifier)
-    {
-        EntityType = entityType;
-        Identifier = identifier;
-    }
-
-    public string EntityType { get; }
-    public string Identifier { get; }
-    public override string Message => $"{EntityType} with id {Identifier} was not found";
-    public override bool IsExpected => true;
-}
-
-// Usage example:
-public async Task<SResult<User>> GetUserById(string userId)
-{
-    var user = await _repository.FindUserById(userId);
-    if (user == null)
-        return SResult<User>.Error(new NotFoundError("User", userId));
-
-    return SResult<User>.Success(user);
-}
-
-// Pattern matching with custom error
-var result = await GetUserById("123");
-var message = result.Match(
-    fail => fail is NotFoundError nf 
-        ? $"Could not find {nf.EntityType} {nf.Identifier}" 
-        : "Unknown error",
-    success => $"Found user: {success.Name}"
-);
-```
-
-Bespoke errors provide several benefits:
-1. Type-safe error handling with pattern matching
-2. Rich error context specific to your domain
-3. Clear distinction between expected and unexpected errors
-4. Consistent error handling across your application
 
 ## Contributing 🤝
 
