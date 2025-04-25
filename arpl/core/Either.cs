@@ -5,7 +5,7 @@ namespace Arpl.Core
     /// </summary>
     /// <typeparam name="L">The type of the left value.</typeparam>
     /// <typeparam name="R">The type of the right value.</typeparam>
-    public abstract class Either<L, R>
+    public abstract partial class Either<L, R>
     {
         /// <summary>
         /// Gets the left value if this instance represents a left value.
@@ -87,60 +87,6 @@ namespace Arpl.Core
 
         /// <summary>
         /// Matches the Either instance and transforms it to a value of type T.
-        /// </summary>
-        /// <typeparam name="T">The type of the result.</typeparam>
-        /// <param name="leftFunc">The function to transform the left value.</param>
-        /// <param name="rightFunc">The function to transform the right value.</param>
-        /// <returns>The result of applying the appropriate function to the contained value.</returns>
-        public T Match<T>(Func<L, T> leftFunc, Func<R, T> rightFunc)
-        {
-            if (IsLeft)
-                return leftFunc(LeftValue);
-            return rightFunc(RightValue);
-        }
-
-                /// <summary>
-        /// Asynchronously matches the Either instance and transforms it to a value of type T.
-        /// </summary>
-        /// <typeparam name="T">The type of the result.</typeparam>
-        /// <param name="leftFunc">The async function to transform the left value.</param>
-        /// <param name="rightFunc">The async function to transform the right value.</param>
-        /// <returns>The result of applying the appropriate async function to the contained value.</returns>
-        public async Task<T> MatchAsync<T>(Func<L, Task<T>> leftFunc, Func<R, Task<T>> rightFunc)
-        {
-            if (IsLeft) 
-                return await leftFunc(LeftValue);
-
-            return await rightFunc(RightValue);
-        }
-
-                /// <summary>
-        /// Transforms the right value using the provided function, if present.
-        /// </summary>
-        /// <typeparam name="O">The type of the new right value.</typeparam>
-        /// <param name="mapFunc">The transformation function for the right value.</param>
-        /// <returns>A new Either with the transformed right value, or the original left value.</returns>
-        public Either<L,O> Map<O>(Func<R,O> mapFunc)
-        {
-            if (IsRight) return Either<L, O>.Right(mapFunc(RightValue));
-
-            return Either<L,O>.Left(LeftValue);
-        }
-
-
-        /// <summary>
-        /// Transforms the right value using the provided async function, if present.
-        /// </summary>
-        /// <typeparam name="O">The type of the new right value.</typeparam>
-        /// <param name="mapFunc">The async transformation function for the right value.</param>
-        /// <returns>A new Either with the transformed right value, or the original left value.</returns>
-        public async Task<Either<L,O>> MapAsync<O>(Func<R,Task<O>> mapFunc)
-        {
-            if (IsRight) return Either<L, O>.Right(await mapFunc(RightValue));
-
-            return Either<L,O>.Left(LeftValue);
-        }
-
         public static implicit operator SResult<R>(Either<L, R> either)
         {
             return either switch

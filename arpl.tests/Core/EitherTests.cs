@@ -1,49 +1,11 @@
 using Xunit;
 using Arpl.Core;
-using System.Threading.Tasks;
 
 namespace Arpl.Tests.Core
 {
     public class EitherTests
     {
-        [Fact]
-        public void Map_TransformsRightValue()
-        {
-            var either = Either<string, int>.Right(10);
-            var mapped = either.Map(i => i * 2);
-            Assert.True(mapped.IsRight);
-            Assert.Equal(20, mapped.RightValue);
-        }
-
-        [Fact]
-        public void Map_DoesNotTransformLeftValue()
-        {
-            var either = Either<string, int>.Left("fail");
-            var mapped = either.Map(i => i * 2);
-            Assert.True(mapped.IsLeft);
-            Assert.Equal("fail", mapped.LeftValue);
-        }
-
-        [Fact]
-        public async Task MatchAsync_ResolvesRightAsync()
-        {
-            var either = Either<string, int>.Right(5);
-            var result = await either.MatchAsync(
-                left => Task.FromResult(-1),
-                right => Task.FromResult(right * 3));
-            Assert.Equal(15, result);
-        }
-
-        [Fact]
-        public async Task MatchAsync_ResolvesLeftAsync()
-        {
-            var either = Either<string, int>.Left("fail");
-            var result = await either.MatchAsync(
-                left => Task.FromResult(-1),
-                right => Task.FromResult(right * 3));
-            Assert.Equal(-1, result);
-        }
-        [Fact]
+        [Fact(DisplayName = "Left - Creates Left value with correct properties")]
         public void Left_CreatesLeftValue()
         {
             // Arrange
@@ -59,7 +21,7 @@ namespace Arpl.Tests.Core
             Assert.Equal(default(int), either.RightValue);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Right - Creates Right value with correct properties")]
         public void Right_CreatesRightValue()
         {
             // Arrange
@@ -75,9 +37,7 @@ namespace Arpl.Tests.Core
             Assert.Equal(default(string), either.LeftValue);
         }
 
-       
-
-        [Fact]
+        [Fact(DisplayName = "Implicit Conversion - To SResult preserves Right value")]
         public void ImplicitConversion_ToSResult_PreservesRight()
         {
             // Arrange
@@ -92,7 +52,7 @@ namespace Arpl.Tests.Core
             Assert.Equal(value, result.SuccessValue);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Implicit Conversion - To SResult preserves Left value")]
         public void ImplicitConversion_ToSResult_PreservesLeft()
         {
             // Arrange

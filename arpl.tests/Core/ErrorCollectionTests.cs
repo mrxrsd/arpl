@@ -9,9 +9,6 @@ namespace Arpl.Tests.Core
         [Fact]
         public void Add_WithValidError_AddsErrorToCollection()
         {
-            var col = Errors.EmptyError();
-
-
             // Arrange
             var collection = Errors.EmptyError();
             var error = Errors.New("Test error", "TEST001");
