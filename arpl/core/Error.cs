@@ -126,7 +126,7 @@ namespace Arpl.Core
         /// Creates an empty error collection.
         /// </summary>
         /// <returns>An empty error collection.</returns>
-        public static Error EmptyError() => new ErrorCollection();
+        public static ErrorCollection EmptyError() => new ErrorCollection();
 
         /// <summary>
         /// Creates a new expected error with the specified message and code.

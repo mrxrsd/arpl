@@ -116,6 +116,41 @@ if (success.IsSuccess)
 if (error.IsFail)
     Console.WriteLine($"Error value: {error.ErrorValue}");
 ```
+## Error Handling
+
+ARPL provides a flexible error handling system that allows you to work with both single errors and collections of errors. The `Error` class serves as the base for all error types, and the `ErrorCollection` allows you to aggregate multiple errors together.
+
+### Single Errors
+
+```csharp
+// Create a simple error
+var error = Errors.New("Invalid input", "ERR001");
+
+// Create an unexpected error from an exception
+var unexpectedError = Errors.New(new Exception("Database connection failed"));
+```
+
+### Multiple Errors
+
+When you need to collect and combine multiple errors, use `ErrorCollection`:
+
+```csharp
+// Start with an empty error collection
+var errors = Errors.EmptyError();
+
+// Add errors as they are found
+errors.Add(Errors.New("Invalid email", "VAL001"));
+errors.Add(Errors.New("Password too short", "VAL002"));
+
+// You can also combine errors using the + operator
+var error1 = Errors.New("Field required", "VAL003");
+var error2 = Errors.New("Invalid format", "VAL004");
+var combined = error1 + error2; // Creates a new ErrorCollection
+
+// Use in result types
+return SResult<User>.Error(errors); // Works with both single Error and ErrorCollection
+```
+
 ## Bespoke Errors
 
 ARPL allows you to create custom error types by extending the `Error` class. This enables you to create domain-specific errors that carry meaningful context for your application:

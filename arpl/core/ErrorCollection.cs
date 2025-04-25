@@ -59,6 +59,16 @@ namespace Arpl.Core
             return Errors;
         }
 
-
+        /// <summary>
+        /// Adds an error to this collection.
+        /// </summary>
+        /// <param name="error">The error to add to the collection. If null, the error will be ignored.</param>
+        public void Add(Error error)
+        {
+            if (error != null)
+            {
+                Errors.Add(error);
+            }
+        }
     }
 }
