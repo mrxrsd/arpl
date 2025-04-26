@@ -1,6 +1,54 @@
 # ARPL (Advanced Result Pattern Library)
 
+[![NuGet](https://img.shields.io/nuget/v/ARPL.svg)](https://www.nuget.org/packages/ARPL)
+[![Downloads](https://img.shields.io/nuget/dt/ARPL.svg)](https://www.nuget.org/packages/ARPL)
+[![License](https://img.shields.io/github/license/mrxrsd/arpl.svg)](https://github.com/mrxrsd/arpl/blob/main/LICENSE)
+
 A lightweight C# library providing robust discriminated unions for error handling and functional programming patterns. ARPL offers two main types: `Either<L,R>` for generic discriminated unions and `SResult<R>` for specialized success/error handling.
+
+> If you find ARPL helpful, please give it a star ⭐! It helps the project grow and improve.
+
+## Why ARPL? 🤔
+
+- ✨ **Type-safe error handling** without exceptions
+- 🔄 **Rich functional methods** for composing operations
+- 🎯 **Explicit error cases** in method signatures
+- 📦 **Collection of errors** support out of the box
+- 🔗 **Chainable operations** with fluent API
+- 🧪 **Testable code** with predictable flows
+
+## Table of Contents 📑
+
+- [The Result Pattern](#the-result-pattern-)
+- [Features](#features-)
+- [Getting Started](#getting-started-)
+  - [Installation](#installation)
+  - [Basic Usage](#basic-usage)
+    - [Either<L,R>](#eitherLR)
+    - [SResult<R>](#sresultr)
+    - [Error](#error)
+- [Error Handling](#error-handling)
+  - [Single Errors](#single-errors)
+  - [Multiple Errors](#multiple-errors)
+- [Bespoke Errors](#bespoke-errors)
+- [Implicit Conversions](#implicit-conversions)
+- [StaticFactory Helpers](#staticfactory-helpers)
+- [Type Features](#type-features)
+  - [Either<L,R>](#eitherLR-1)
+  - [SResult<R>](#sresultr-1)
+  - [Error](#error-1)
+- [Functional Methods](#functional-methods-)
+  - [Map & MapAsync](#map--mapasync)
+  - [Bind & BindAsync](#bind--bindasync)
+  - [Match & MatchAsync](#match--matchasync)
+  - [Sequence & SequenceAsync](#sequence--sequenceasync)
+  - [Traverse & TraverseAsync](#traverse--traverseasync)
+  - [Apply & ApplyAsync](#apply--applyasync)
+- [Best Practices](#best-practices)
+  - [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+- [Benchmarking](#benchmarking)
+- [Contributing](#contributing-)
+- [License](#license-)
 
 ## The Result Pattern 🎯
 
@@ -23,7 +71,7 @@ public User CreateUser(string email, string password)
         // Validate password
         if (string.IsNullOrEmpty(password))
             throw new ValidationException("Password is required");
-            
+
         // Create and save user
         var user = new User(email, password);
         await _repository.Save(user);
@@ -52,13 +100,13 @@ public SResult<User> CreateUser(string email, string password)
     // Validate inputs
     if (string.IsNullOrEmpty(email))
         return Fail<User>(Errors.New("Email is required"));
-        
+
     if (string.IsNullOrEmpty(password))
         return Fail<User>(Errors.New("Password is required"));
         
     if (!IsValidEmail(email))
         return Fail<User>(Errors.New("Invalid email format"));
-        
+
     // Create and save user
     try
     {
@@ -504,6 +552,82 @@ var handled = either.Apply(
 3. Leverage pattern matching with `Match` for clean and safe value handling
 4. Prefer using the type system for error handling instead of exceptions
 
+
+### Anti-Patterns to Avoid
+
+1. ❌ **Don't mix exceptions with Results**
+```csharp
+// Bad
+public SResult<User> GetUser(int id)
+{
+    if (id <= 0)
+        throw new ArgumentException("Invalid id"); // Don't throw!
+
+    var user = _repository.GetById(id);
+    return user == null
+        ? Fail<User>(Errors.New("User not found"))
+        : Success(user);
+}
+
+// Good
+public SResult<User> GetUser(int id)
+{
+    if (id <= 0)
+        return Fail<User>(Errors.New("Invalid id"));
+
+    var user = _repository.GetById(id);
+    return user == null
+        ? Fail<User>(Errors.New("User not found"))
+        : Success(user);
+}
+```
+
+2. ❌ **Don't ignore the Result value**
+```csharp
+// Bad
+await CreateUser(request); // Result ignored!
+
+// Good
+var result = await CreateUser(request);
+if (result.IsFail)
+    _logger.LogError("Failed to create user: {Errors}", result.ErrorValue);
+```
+
+3. ❌ **Don't use Result for expected flow control**
+```csharp
+// Bad - using Result for normal flow
+public SResult<decimal> GetDiscount(User user)
+{
+    return user.IsPremium
+        ? Success(0.1m)
+        : Success(0m);
+}
+
+// Good - use normal return
+public decimal GetDiscount(User user)
+{
+    return user.IsPremium ? 0.1m : 0m;
+}
+```
+## Benchmarking
+
+|Feature|ARPL|FluentResults|OneOf|ErrorOr|
+|-------|----|----|-----|-----|
+|Generic Discriminated Union|✅ `Either<L,R>`|❌|✅|❌|
+|Result Type|✅ `SResult<R>`|✅|❌|✅|
+|Multiple Errors|✅|✅|❌|✅|
+|Functional Methods|✅|✅|❌|✅|
+|Async Support|✅|✅|❌|✅|
+|Pattern Matching|✅|✅|✅|✅|
+|Implicit Conversions|✅|✅|❌|✅|
+|No Dependencies|✅|✅|✅|✅|
+
+ARPL combines the best of worlds:
+- Generic discriminated unions like OneOf
+- Rich error handling like FluentResults/ErrorOr
+- Full functional programming support
+- Seamless async/await integration
+
 ## Contributing 🤝
 
 Contributions are welcome! Feel free to submit issues and pull requests.
@@ -514,4 +638,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-> **Disclaimer:** This README was generated and reviewed with the assistance of Windsurf AI.
+> **Disclaimer:** This README was generated by Windsurf AI.
