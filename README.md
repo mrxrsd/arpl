@@ -46,6 +46,11 @@ A lightweight C# library providing robust discriminated unions for error handlin
   - [Apply & ApplyAsync](#apply--applyasync)
 - [Best Practices](#best-practices)
   - [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+- [Demo Application](#demo-application)
+  - [Features](#features-1)
+  - [Running the Demo](#running-the-demo)
+  - [API Endpoints](#api-endpoints)
+  - [Example Request](#example-request)
 - [Benchmarking](#benchmarking)
 - [Contributing](#contributing-)
 - [License](#license-)
@@ -609,6 +614,44 @@ public decimal GetDiscount(User user)
     return user.IsPremium ? 0.1m : 0m;
 }
 ```
+
+## Demo Application
+
+The repository includes a sample Web API project that demonstrates how to use ARPL in a real-world scenario. The demo implements a simple Person management API with proper error handling and functional programming patterns.
+
+### Features
+- CRUD operations for Person entity
+- Validation using Either<ValidateError, T>
+- Error handling with SResult<T>
+- HTTP response handling with custom HttpResult
+
+### Running the Demo
+1. Navigate to the sample directory:
+```bash
+cd sample/SampleWebApi
+```
+
+2. Run the application:
+```bash
+dotnet run
+```
+
+3. Open your browser at:
+- API: http://localhost:5297
+- Swagger UI: http://localhost:5297/swagger
+
+### API Endpoints
+- GET /api/person - List all persons
+- GET /api/person/{id} - Get person by id
+- POST /api/person - Create new person
+
+### Example Request
+```bash
+curl -X POST http://localhost:5297/api/person \
+  -H "Content-Type: application/json" \
+  -d '{"name":"John Doe","age":30}'
+```
+
 ## Benchmarking
 
 |Feature|ARPL|FluentResults|OneOf|ErrorOr|

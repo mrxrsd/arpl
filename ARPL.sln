@@ -5,7 +5,9 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arpl", "arpl\Arpl.csproj", "{408EC16C-5105-4866-A357-8912B62A3D0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "arpl.tests", "arpl.tests\arpl.tests.csproj", "{876C31B9-D0A8-4253-8C9E-49C094C96B60}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arpl.tests", "arpl.tests\Arpl.tests.csproj", "{876C31B9-D0A8-4253-8C9E-49C094C96B60}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleWebApi", "sample\SampleWebApi\SampleWebApi.csproj", "{A11617BB-AB3F-4111-83E8-BC1BBDFF1290}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{876C31B9-D0A8-4253-8C9E-49C094C96B60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{876C31B9-D0A8-4253-8C9E-49C094C96B60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{876C31B9-D0A8-4253-8C9E-49C094C96B60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A11617BB-AB3F-4111-83E8-BC1BBDFF1290}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A11617BB-AB3F-4111-83E8-BC1BBDFF1290}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A11617BB-AB3F-4111-83E8-BC1BBDFF1290}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A11617BB-AB3F-4111-83E8-BC1BBDFF1290}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
