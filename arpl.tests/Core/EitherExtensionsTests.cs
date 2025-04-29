@@ -195,5 +195,88 @@ namespace Arpl.Tests.Core
             Assert.True(result.IsRight);
             Assert.Equal(new[] { "Value: 2", "Value: 4", "Value: 6" }, result.RightValue);
         }
+
+        [Fact(DisplayName = "MatchAsync - With sync functions - Should handle Right value")]
+        public async Task MatchAsync_WithSyncFunctions_ShouldHandleRight()
+        {
+            // Arrange
+            var task = Task.FromResult(Either<string, int>.Right(42));
+
+            // Act
+            var result = await task.MatchAsync(
+                left => Either<string, string>.Left(left),
+                right => Either<string, string>.Right($"Value: {right}"));
+
+            // Assert
+            Assert.True(result.IsRight);
+            Assert.Equal("Value: 42", result.RightValue);
+        }
+
+        [Fact(DisplayName = "MatchAsync - With sync functions - Should handle Left value")]
+        public async Task MatchAsync_WithSyncFunctions_ShouldHandleLeft()
+        {
+            // Arrange
+            var task = Task.FromResult(Either<string, int>.Left("error"));
+
+            // Act
+            var result = await task.MatchAsync(
+                left => Either<string, string>.Left($"Error: {left}"),
+                right => Either<string, string>.Right($"Value: {right}"));
+
+            // Assert
+            Assert.True(result.IsLeft);
+            Assert.Equal("Error: error", result.LeftValue);
+        }
+
+        [Fact(DisplayName = "MatchAsync - With async functions - Should handle Right value")]
+        public async Task MatchAsync_WithAsyncFunctions_ShouldHandleRight()
+        {
+            // Arrange
+            var task = Task.FromResult(Either<string, int>.Right(42));
+
+            // Act
+            var result = await task.MatchAsync(
+                left => Task.FromResult(Either<string, string>.Left(left)),
+                right => Task.FromResult(Either<string, string>.Right($"Value: {right}")));
+
+            // Assert
+            Assert.True(result.IsRight);
+            Assert.Equal("Value: 42", result.RightValue);
+        }
+
+        [Fact(DisplayName = "MatchAsync - With async functions - Should handle Left value")]
+        public async Task MatchAsync_WithAsyncFunctions_ShouldHandleLeft()
+        {
+            // Arrange
+            var task = Task.FromResult(Either<string, int>.Left("error"));
+
+            // Act
+            var result = await task.MatchAsync(
+                left => Task.FromResult(Either<string, string>.Left($"Error: {left}")),
+                right => Task.FromResult(Either<string, string>.Right($"Value: {right}")));
+
+            // Assert
+            Assert.True(result.IsLeft);
+            Assert.Equal("Error: error", result.LeftValue);
+        }
+
+        [Fact(DisplayName = "MatchAsync - Should allow chaining with other async operations")]
+        public async Task MatchAsync_ShouldAllowChaining()
+        {
+            // Arrange
+            var task = Task.FromResult(Either<string, int>.Right(42));
+
+            // Act
+            var result = await task
+                .MatchAsync(
+                    left => Task.FromResult(Either<string, int>.Left(left)),
+                    right => Task.FromResult(Either<string, int>.Right(right * 2)))
+                .BindAsync(value => Task.FromResult(Either<string, string>.Right($"Value: {value}")))
+                .MapAsync(str => Task.FromResult(str.ToUpper()));
+
+            // Assert
+            Assert.True(result.IsRight);
+            Assert.Equal("VALUE: 84", result.RightValue);
+        }
     }
 }

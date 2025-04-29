@@ -224,5 +224,47 @@ namespace Arpl.Core
             var source = await task;
             return await source.TraverseAsync(map);
         }
+
+        /// <summary>
+        /// Matches a Task of Either using async functions.
+        /// This allows chaining multiple MatchAsync calls without intermediate awaits.
+        /// </summary>
+        /// <typeparam name="L">The type of the left value.</typeparam>
+        /// <typeparam name="R">The type of the input right value.</typeparam>
+        /// <typeparam name="O">The type of the output value.</typeparam>
+        /// <param name="task">The task containing the Either to match.</param>
+        /// <param name="leftFunc">The async function to apply if the result is Left.</param>
+        /// <param name="rightFunc">The async function to apply if the result is Right.</param>
+        /// <returns>A task containing the matched Either.</returns>
+        public static async Task<Either<L, O>> MatchAsync<L, R, O>(
+            this Task<Either<L, R>> task,
+            Func<L, Either<L, O>> leftFunc,
+            Func<R, Either<L, O>> rightFunc)
+        {
+            var result = await task;
+            return result.Match(leftFunc, rightFunc);
+        }
+
+        /// <summary>
+        /// Matches a Task of Either using async functions.
+        /// This allows chaining multiple MatchAsync calls without intermediate awaits.
+        /// </summary>
+        /// <typeparam name="L">The type of the left value.</typeparam>
+        /// <typeparam name="R">The type of the input right value.</typeparam>
+        /// <typeparam name="O">The type of the output value.</typeparam>
+        /// <param name="task">The task containing the Either to match.</param>
+        /// <param name="leftFunc">The async function to apply if the result is Left.</param>
+        /// <param name="rightFunc">The async function to apply if the result is Right.</param>
+        /// <returns>A task containing the matched Either.</returns>
+        public static async Task<Either<L, O>> MatchAsync<L, R, O>(
+            this Task<Either<L, R>> task,
+            Func<L, Task<Either<L, O>>> leftFunc,
+            Func<R, Task<Either<L, O>>> rightFunc)
+        {
+            var result = await task;
+            if (result.IsLeft)
+                return await leftFunc(result.LeftValue);
+            return await rightFunc(result.RightValue);
+        }
     }
 }

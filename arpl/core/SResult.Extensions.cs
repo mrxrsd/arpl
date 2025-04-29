@@ -214,5 +214,45 @@ namespace Arpl.Core
             var source = await task;
             return await source.TraverseAsync(map);
         }
+
+        /// <summary>
+        /// Matches a Task of SResult using functions.
+        /// This allows chaining multiple MatchAsync calls without intermediate awaits.
+        /// </summary>
+        /// <typeparam name="T">The type of the input SResult value.</typeparam>
+        /// <typeparam name="O">The type of the output value.</typeparam>
+        /// <param name="task">The task containing the SResult to match.</param>
+        /// <param name="failFunc">The function to apply if the result is a failure.</param>
+        /// <param name="successFunc">The function to apply if the result is a success.</param>
+        /// <returns>A task containing the matched SResult.</returns>
+        public static async Task<SResult<O>> MatchAsync<T, O>(
+            this Task<SResult<T>> task,
+            Func<Error, SResult<O>> failFunc,
+            Func<T, SResult<O>> successFunc)
+        {
+            var result = await task;
+            return result.Match(failFunc, successFunc);
+        }
+
+        /// <summary>
+        /// Matches a Task of SResult using async functions.
+        /// This allows chaining multiple MatchAsync calls without intermediate awaits.
+        /// </summary>
+        /// <typeparam name="T">The type of the input SResult value.</typeparam>
+        /// <typeparam name="O">The type of the output value.</typeparam>
+        /// <param name="task">The task containing the SResult to match.</param>
+        /// <param name="failFunc">The async function to apply if the result is a failure.</param>
+        /// <param name="successFunc">The async function to apply if the result is a success.</param>
+        /// <returns>A task containing the matched SResult.</returns>
+        public static async Task<SResult<O>> MatchAsync<T, O>(
+            this Task<SResult<T>> task,
+            Func<Error, Task<SResult<O>>> failFunc,
+            Func<T, Task<SResult<O>>> successFunc)
+        {
+            var result = await task;
+            if (result.IsFail)
+                return await failFunc(result.ErrorValue);
+            return await successFunc(result.SuccessValue);
+        }
     }
 }

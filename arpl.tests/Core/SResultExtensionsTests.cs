@@ -199,5 +199,90 @@ namespace Arpl.Tests.Core
             Assert.True(result.IsSuccess);
             Assert.Equal(new[] { "Value: 2", "Value: 4", "Value: 6" }, result.SuccessValue);
         }
+
+        [Fact(DisplayName = "MatchAsync - With sync functions - Should handle Success value")]
+        public async Task MatchAsync_WithSyncFunctions_ShouldHandleSuccess()
+        {
+            // Arrange
+            var task = Task.FromResult(SResult<int>.Success(42));
+
+            // Act
+            var result = await task.MatchAsync(
+                fail => SResult<string>.Error(fail),
+                success => SResult<string>.Success($"Value: {success}"));
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal("Value: 42", result.SuccessValue);
+        }
+
+        [Fact(DisplayName = "MatchAsync - With sync functions - Should handle Error value")]
+        public async Task MatchAsync_WithSyncFunctions_ShouldHandleError()
+        {
+            // Arrange
+            var error = Errors.New("test error");
+            var task = Task.FromResult(SResult<int>.Error(error));
+
+            // Act
+            var result = await task.MatchAsync(
+                fail => SResult<string>.Error(Errors.New($"Error: {fail.Message}")),
+                success => SResult<string>.Success($"Value: {success}"));
+
+            // Assert
+            Assert.True(result.IsFail);
+            Assert.Equal("Error: test error", result.ErrorValue.Message);
+        }
+
+        [Fact(DisplayName = "MatchAsync - With async functions - Should handle Success value")]
+        public async Task MatchAsync_WithAsyncFunctions_ShouldHandleSuccess()
+        {
+            // Arrange
+            var task = Task.FromResult(SResult<int>.Success(42));
+
+            // Act
+            var result = await task.MatchAsync(
+                fail => Task.FromResult(SResult<string>.Error(fail)),
+                success => Task.FromResult(SResult<string>.Success($"Value: {success}")));
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal("Value: 42", result.SuccessValue);
+        }
+
+        [Fact(DisplayName = "MatchAsync - With async functions - Should handle Error value")]
+        public async Task MatchAsync_WithAsyncFunctions_ShouldHandleError()
+        {
+            // Arrange
+            var error = Errors.New("test error");
+            var task = Task.FromResult(SResult<int>.Error(error));
+
+            // Act
+            var result = await task.MatchAsync(
+                fail => Task.FromResult(SResult<string>.Error(Errors.New($"Error: {fail.Message}"))),
+                success => Task.FromResult(SResult<string>.Success($"Value: {success}")));
+
+            // Assert
+            Assert.True(result.IsFail);
+            Assert.Equal("Error: test error", result.ErrorValue.Message);
+        }
+
+        [Fact(DisplayName = "MatchAsync - Should allow chaining with other async operations")]
+        public async Task MatchAsync_ShouldAllowChaining()
+        {
+            // Arrange
+            var task = Task.FromResult(SResult<int>.Success(42));
+
+            // Act
+            var result = await task
+                .MatchAsync(
+                    fail => Task.FromResult(SResult<int>.Error(fail)),
+                    success => Task.FromResult(SResult<int>.Success(success * 2)))
+                .BindAsync(value => Task.FromResult(SResult<string>.Success($"Value: {value}")))
+                .MapAsync(str => Task.FromResult(str.ToUpper()));
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal("VALUE: 84", result.SuccessValue);
+        }
     }
 }
