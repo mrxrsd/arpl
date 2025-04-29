@@ -234,6 +234,14 @@ var error = Errors.New("Invalid input", "ERR001");
 
 // Create an unexpected error from an exception
 var unexpectedError = Errors.New(new Exception("Database connection failed"));
+
+// Check error types
+if (error.HasErrorOf<ExpectedError>())
+    Console.WriteLine("This is an expected error");
+
+// Check exception types
+if (unexpectedError.HasExceptionOf<DbException>())
+    Console.WriteLine("This is a database error");
 ```
 
 ### Multiple Errors
@@ -413,7 +421,8 @@ These methods make it easier to create values for functional flows and tests, ma
 - `Code` - Gets the error code (if present)
 - `Exception` - Gets the exception (if present)
 - `IsExpected` - Indicates if the error was expected
-
+- `HasErrorOf<T>()` - Checks if the error is of type T
+- `HasExceptionOf<T>()` - Checks if the error's exception is of type T
 
 ## Functional Methods 🧮
 
