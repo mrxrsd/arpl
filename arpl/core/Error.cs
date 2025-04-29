@@ -9,6 +9,16 @@ namespace Arpl.Core
     public abstract record Error
     {
         /// <summary>
+        /// Checks if this error is of the specified type T.
+        /// </summary>
+        /// <typeparam name="T">The type of error to check for.</typeparam>
+        /// <returns>True if the error is of type T, false otherwise.</returns>
+        public virtual bool HasErrorOf<T>() where T : Error
+        {
+            return this is T;
+        }
+
+        /// <summary>
         /// Gets the error code. Default value is "0".
         /// </summary>
         public virtual string Code => "0";

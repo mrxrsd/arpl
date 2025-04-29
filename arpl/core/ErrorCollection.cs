@@ -51,6 +51,16 @@ namespace Arpl.Core
         public override bool IsExpected => Errors.All(x => x.IsExpected);
 
         /// <summary>
+        /// Checks if this error collection contains an error of the specified type T.
+        /// </summary>
+        /// <typeparam name="T">The type of error to check for.</typeparam>
+        /// <returns>True if the collection contains at least one error of type T, false otherwise.</returns>
+        public override bool HasErrorOf<T>() 
+        {
+            return Errors.Any(error => error is T);
+        }
+
+        /// <summary>
         /// Returns an enumerable of all errors in this collection.
         /// </summary>
         /// <returns>An IEnumerable containing all errors in this collection.</returns>
