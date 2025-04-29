@@ -34,6 +34,11 @@ namespace Arpl.Core
         public abstract bool IsExpected { get; }
 
         /// <summary>
+        /// Gets the exception associated with this error, if any.
+        /// </summary>
+        public abstract Exception Exception { get; }
+
+        /// <summary>
         /// Gets the number of errors in this instance. Base implementation returns 1.
         /// </summary>
         public virtual int Count => 1;
@@ -98,6 +103,7 @@ namespace Arpl.Core
         public override string Code { get; }
         public override string Message { get; }
         public override bool IsExpected => true;
+        public override Exception Exception => null;
     }
 
     /// <summary>
@@ -119,10 +125,7 @@ namespace Arpl.Core
         }
 
         public override string Code { get; }
-        /// <summary>
-        /// Gets the exception that caused this error.
-        /// </summary>
-        public Exception Exception { get; }
+        public override Exception Exception { get; }
         public override string Message { get; }
         public override bool IsExpected => false;
     }

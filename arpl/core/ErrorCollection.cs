@@ -51,6 +51,25 @@ namespace Arpl.Core
         public override bool IsExpected => Errors.All(x => x.IsExpected);
 
         /// <summary>
+        /// Gets an AggregateException containing all exceptions from the errors in this collection.
+        /// Returns null if no errors have exceptions.
+        /// </summary>
+        public override Exception? Exception
+        {
+            get
+            {
+                var exceptions = Errors
+                    .Select(error => error.Exception)
+                    .Where(ex => ex != null)
+                    .ToList();
+
+                return exceptions.Count > 0
+                    ? new AggregateException(exceptions)
+                    : null;
+            }
+        }
+
+        /// <summary>
         /// Checks if this error collection contains an error of the specified type T.
         /// </summary>
         /// <typeparam name="T">The type of error to check for.</typeparam>

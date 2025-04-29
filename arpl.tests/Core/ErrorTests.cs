@@ -52,6 +52,58 @@ namespace Arpl.Tests.Core
             Assert.False(collection.HasErrorOf<ExpectedError>());
             Assert.False(collection.HasErrorOf<UnexpectedError>());
         }
+
+        [Fact]
+        public void Exception_ExpectedError_ReturnsNull()
+        {
+            // Arrange
+            var error = Errors.New("Test error");
+
+            // Act & Assert
+            Assert.Null(error.Exception);
+        }
+
+        [Fact]
+        public void Exception_UnexpectedError_ReturnsException()
+        {
+            // Arrange
+            var exception = new Exception("Test exception");
+            var error = Errors.New(exception);
+
+            // Act & Assert
+            Assert.Same(exception, error.Exception);
+        }
+
+        [Fact]
+        public void Exception_ErrorCollection_ReturnsAggregateException()
+        {
+            // Arrange
+            var exception1 = new Exception("Test exception 1");
+            var exception2 = new Exception("Test exception 2");
+            var error1 = Errors.New(exception1);
+            var error2 = Errors.New(exception2);
+            var collection = error1 + error2;
+
+            // Act
+            var aggregateException = Assert.IsType<AggregateException>(collection.Exception);
+
+            // Assert
+            Assert.Collection(aggregateException.InnerExceptions,
+                ex => Assert.Same(exception1, ex),
+                ex => Assert.Same(exception2, ex));
+        }
+
+        [Fact]
+        public void Exception_ErrorCollectionWithoutExceptions_ReturnsNull()
+        {
+            // Arrange
+            var error1 = Errors.New("Test error 1");
+            var error2 = Errors.New("Test error 2");
+            var collection = error1 + error2;
+
+            // Act & Assert
+            Assert.Null(collection.Exception);
+        }
         [Fact]
         public void New_CreatesExpectedError()
         {
