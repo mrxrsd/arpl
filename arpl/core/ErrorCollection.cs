@@ -80,6 +80,16 @@ namespace Arpl.Core
         }
 
         /// <summary>
+        /// Checks if any error in this collection has an exception of the specified type T.
+        /// </summary>
+        /// <typeparam name="T">The type of exception to check for.</typeparam>
+        /// <returns>True if any error has an exception of type T, false otherwise.</returns>
+        public override bool HasExceptionOf<T>()
+        {
+            return Errors.Any(error => error.Exception is T);
+        }
+
+        /// <summary>
         /// Returns an enumerable of all errors in this collection.
         /// </summary>
         /// <returns>An IEnumerable containing all errors in this collection.</returns>

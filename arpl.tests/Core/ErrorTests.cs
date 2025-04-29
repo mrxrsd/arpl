@@ -104,6 +104,59 @@ namespace Arpl.Tests.Core
             // Act & Assert
             Assert.Null(collection.Exception);
         }
+
+        [Fact]
+        public void HasExceptionOf_ExpectedError_ReturnsFalse()
+        {
+            // Arrange
+            var error = Errors.New("Test error");
+
+            // Act & Assert
+            Assert.False(error.HasExceptionOf<Exception>());
+            Assert.False(error.HasExceptionOf<ArgumentException>());
+        }
+
+        [Fact]
+        public void HasExceptionOf_UnexpectedError_ReturnsTrue()
+        {
+            // Arrange
+            var exception = new ArgumentException("Test exception");
+            var error = Errors.New(exception);
+
+            // Act & Assert
+            Assert.True(error.HasExceptionOf<Exception>());
+            Assert.True(error.HasExceptionOf<ArgumentException>());
+            Assert.False(error.HasExceptionOf<InvalidOperationException>());
+        }
+
+        [Fact]
+        public void HasExceptionOf_ErrorCollection_FindsException()
+        {
+            // Arrange
+            var exception1 = new ArgumentException("Test exception 1");
+            var exception2 = new InvalidOperationException("Test exception 2");
+            var error1 = Errors.New(exception1);
+            var error2 = Errors.New(exception2);
+            var collection = error1 + error2;
+
+            // Act & Assert
+            Assert.True(collection.HasExceptionOf<ArgumentException>());
+            Assert.True(collection.HasExceptionOf<InvalidOperationException>());
+            Assert.False(collection.HasExceptionOf<NullReferenceException>());
+        }
+
+        [Fact]
+        public void HasExceptionOf_ErrorCollectionWithoutExceptions_ReturnsFalse()
+        {
+            // Arrange
+            var error1 = Errors.New("Test error 1");
+            var error2 = Errors.New("Test error 2");
+            var collection = error1 + error2;
+
+            // Act & Assert
+            Assert.False(collection.HasExceptionOf<Exception>());
+            Assert.False(collection.HasExceptionOf<ArgumentException>());
+        }
         [Fact]
         public void New_CreatesExpectedError()
         {

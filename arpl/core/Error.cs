@@ -19,6 +19,16 @@ namespace Arpl.Core
         }
 
         /// <summary>
+        /// Checks if this error's exception is of the specified type T.
+        /// </summary>
+        /// <typeparam name="T">The type of exception to check for.</typeparam>
+        /// <returns>True if the error's exception is of type T, false otherwise.</returns>
+        public virtual bool HasExceptionOf<T>() where T : Exception
+        {
+            return Exception is T;
+        }
+
+        /// <summary>
         /// Gets the error code. Default value is "0".
         /// </summary>
         public virtual string Code => "0";
