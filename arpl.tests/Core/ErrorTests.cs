@@ -8,6 +8,51 @@ namespace Arpl.Tests.Core
     public class ErrorTests
     {
         [Fact]
+        public void HasErrorOf_SingleExpectedError_ReturnsTrue()
+        {
+            // Arrange
+            var error = Errors.New("Test error");
+
+            // Act & Assert
+            Assert.True(error.HasErrorOf<ExpectedError>());
+            Assert.False(error.HasErrorOf<UnexpectedError>());
+        }
+
+        [Fact]
+        public void HasErrorOf_SingleUnexpectedError_ReturnsTrue()
+        {
+            // Arrange
+            var error = Errors.New(new Exception(), "Test error");
+
+            // Act & Assert
+            Assert.True(error.HasErrorOf<UnexpectedError>());
+            Assert.False(error.HasErrorOf<ExpectedError>());
+        }
+
+        [Fact]
+        public void HasErrorOf_ErrorCollection_FindsExpectedError()
+        {
+            // Arrange
+            var error1 = Errors.New("Expected error");
+            var error2 = Errors.New(new Exception(), "Unexpected error");
+            var collection = error1 + error2;
+
+            // Act & Assert
+            Assert.True(collection.HasErrorOf<ExpectedError>());
+            Assert.True(collection.HasErrorOf<UnexpectedError>());
+        }
+
+        [Fact]
+        public void HasErrorOf_EmptyCollection_ReturnsFalse()
+        {
+            // Arrange
+            var collection = Errors.EmptyError();
+
+            // Act & Assert
+            Assert.False(collection.HasErrorOf<ExpectedError>());
+            Assert.False(collection.HasErrorOf<UnexpectedError>());
+        }
+        [Fact]
         public void New_CreatesExpectedError()
         {
             // Arrange
