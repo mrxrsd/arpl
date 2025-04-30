@@ -26,6 +26,33 @@ namespace Arpl.Core
         /// </summary>
         public abstract bool IsSuccess { get; }
 
+        public Either<Error, R> AsEither() => this;
+        
+        public static SResult<R> Try<R>(Func<R> fn)
+        {
+            try
+            {
+                return SResult<R>.Success(fn());
+            }
+            catch (Exception ex)
+            {
+                return SResult<R>.Error(Errors.New(ex));
+            }
+        }
+
+        public async static Task<SResult<R>> TryAsync<R>(Func<Task<R>> fn)
+        {
+            try
+            {
+                var result = await fn();
+                return SResult<R>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                return SResult<R>.Error(Errors.New(ex));
+            }
+        }
+
         /// <summary>
         /// Represents an error result containing an Error value.
         /// </summary>

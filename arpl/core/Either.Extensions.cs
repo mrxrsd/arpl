@@ -80,7 +80,7 @@ namespace Arpl.Core
         /// <param name="leftFunc">The function to apply if the Either is Left.</param>
         /// <param name="rightFunc">The function to apply if the Either is Right.</param>
         /// <returns>A Task of Either containing the result of the matched function.</returns>
-        public static async Task<Either<L, O>> Match<L, R, O>(this Task<Either<L, R>> self, Func<L, Either<L, O>> leftFunc, Func<R, Either<L, O>> rightFunc)
+        public static async Task<O> Match<L, R, O>(this Task<Either<L, R>> self, Func<L, O> leftFunc, Func<R, O> rightFunc)
         {
             var selfValue = await self;
             return selfValue.Match(leftFunc, rightFunc);
@@ -96,7 +96,7 @@ namespace Arpl.Core
         /// <param name="leftFunc">The async function to apply if the Either is Left.</param>
         /// <param name="rightFunc">The async function to apply if the Either is Right.</param>
         /// <returns>A Task of Either containing the result of the matched function.</returns>
-        public static async Task<Either<L, O>> MatchAsync<L, R, O>(this Task<Either<L, R>> self, Func<L, Task<Either<L, O>>> leftFunc, Func<R, Task<Either<L, O>>> rightFunc)
+        public static async Task<O> MatchAsync<L, R, O>(this Task<Either<L, R>> self, Func<L, Task<O>> leftFunc, Func<R, Task<O>> rightFunc)
         {
             var selfValue = await self;
             return await selfValue.MatchAsync(leftFunc, rightFunc);

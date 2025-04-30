@@ -37,5 +37,12 @@ namespace Arpl.Core
         /// <param name="value">The right value.</param>
         /// <returns>A new Either instance containing the right value.</returns>
         public static Either<L,R> Right<L,R>(R value) => Either<L,R>.Right(value);
+
+
+        public static SResult<R> Try<R>(Func<R> fn) => SResult<R>.Try(fn);
+
+
+        public static Task<SResult<R>> TryAsync<R>(Func<Task<R>> fn) => SResult<R>.TryAsync(fn);
+            
     }
 }

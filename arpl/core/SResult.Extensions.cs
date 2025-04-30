@@ -76,7 +76,7 @@ namespace Arpl.Core
         /// <param name="leftFunc">The function to apply if the SResult is Error.</param>
         /// <param name="rightFunc">The function to apply if the SResult is Success.</param>
         /// <returns>A Task of SResult containing the result of the matched function.</returns>
-        public static async Task<SResult<O>> Match<R, O>(this Task<SResult<R>> self, Func<Error, SResult<O>> leftFunc, Func<R, SResult<O>> rightFunc)
+        public static async Task<O> Match<R, O>(this Task<SResult<R>> self, Func<Error, O> leftFunc, Func<R, O> rightFunc)
         {
             var selfValue = await self;
             return selfValue.Match(leftFunc, rightFunc);
@@ -91,7 +91,7 @@ namespace Arpl.Core
         /// <param name="leftFunc">The async function to apply if the SResult is Error.</param>
         /// <param name="rightFunc">The async function to apply if the SResult is Success.</param>
         /// <returns>A Task of SResult containing the result of the matched function.</returns>
-        public static async Task<SResult<O>> MatchAsync<R, O>(this Task<SResult<R>> self, Func<Error, Task<SResult<O>>> leftFunc, Func<R, Task<SResult<O>>> rightFunc)
+        public static async Task<O> MatchAsync<R, O>(this Task<SResult<R>> self, Func<Error, Task<O>> leftFunc, Func<R, Task<O>> rightFunc)
         {
             var selfValue = await self;
             return await selfValue.MatchAsync(leftFunc, rightFunc);
