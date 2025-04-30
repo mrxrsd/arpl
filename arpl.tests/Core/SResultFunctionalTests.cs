@@ -359,7 +359,7 @@ namespace Arpl.Tests.Core
 
             // Assert
             Assert.True(result.IsFail);
-            Assert.Contains("DivideByZeroException", result.ErrorValue.Message);
+            Assert.Contains("Attempted to divide by zero.", result.ErrorValue.Message);
         }
 
         [Fact(DisplayName = "TryAsync - When async function succeeds - Should return Success")]
@@ -409,7 +409,7 @@ namespace Arpl.Tests.Core
 
             // Assert
             Assert.True(result.IsFail);
-            Assert.Contains("DivideByZeroException", result.ErrorValue.Message);
+            Assert.Contains("Attempted to divide by zero.", result.ErrorValue.Message);
         }
 
         [Fact(DisplayName = "Try - Complex chaining with error handling")]
