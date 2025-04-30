@@ -86,7 +86,11 @@ namespace Arpl.Core
         public static Either<L, R> Right(R value) => new EitherRight<L, R>(value);
 
         /// <summary>
-        /// Matches the Either instance and transforms it to a value of type T.
+        /// Implicitly converts an Either type to an SResult when the left type is Error.
+        /// </summary>
+        /// <param name="either">The Either instance to convert.</param>
+        /// <returns>An SResult containing the same value as the Either.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when trying to convert an Either that doesn't have Error as its left type.</exception>
         public static implicit operator SResult<R>(Either<L, R> either)
         {
             return either switch

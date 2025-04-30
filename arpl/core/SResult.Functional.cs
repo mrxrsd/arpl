@@ -5,6 +5,45 @@ namespace Arpl.Core
 {
     public abstract partial class SResult<R>
     {
+
+        /// <summary>
+        /// Executes a function that returns an SResult.
+        /// If the function throws an exception, it will be caught and returned as an Error.
+        /// </summary>
+        /// <typeparam name="R">The type of the return value.</typeparam>
+        /// <param name="fn">The function that returns an SResult to execute.</param>
+        /// <returns>The SResult returned by the function, or an error SResult if an exception occurred.</returns>
+        public static SResult<R> Try<R>(Func<SResult<R>> fn)
+        {
+            try
+            {
+                return fn();
+            }
+            catch (Exception ex)
+            {
+                return SResult<R>.Error(Errors.New(ex));
+            }
+        }
+
+        /// <summary>
+        /// Executes an async function that returns an SResult.
+        /// If the function throws an exception, it will be caught and returned as an Error.
+        /// </summary>
+        /// <typeparam name="R">The type of the return value.</typeparam>
+        /// <param name="fn">The async function that returns an SResult to execute.</param>
+        /// <returns>A Task containing the SResult returned by the function, or an error SResult if an exception occurred.</returns>
+        public async static Task<SResult<R>> TryAsync<R>(Func<Task<SResult<R>>> fn)
+        {
+            try
+            {
+                return await fn();
+            }
+            catch (Exception ex)
+            {
+                return SResult<R>.Error(Errors.New(ex));
+            }
+        }
+
         /// <summary>
         /// Performs pattern matching on the result, executing the corresponding function for success or error.
         /// </summary>

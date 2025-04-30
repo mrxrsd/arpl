@@ -313,5 +313,185 @@ namespace Arpl.Tests.Core
             Assert.True(final.IsSuccess);
             Assert.Equal("Ratio: 2,0", final.SuccessValue);
         }
+
+        [Fact(DisplayName = "Try - When function succeeds - Should return Success")]
+        public void Try_WhenFunctionSucceeds_ShouldReturnSuccess()
+        {
+            // Arrange
+            SResult<int> SafeDivide(int x, int y)
+            {
+                try
+                {
+                    return SResult<int>.Success(x / y);
+                }
+                catch (Exception ex)
+                {
+                    return SResult<int>.Error(Errors.New(ex));
+                }
+            }
+
+            // Act
+            var result = SResult<int>.Try(() => SafeDivide(10, 2));
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal(5, result.SuccessValue);
+        }
+
+        [Fact(DisplayName = "Try - When function throws - Should return Error")]
+        public void Try_WhenFunctionThrows_ShouldReturnError()
+        {
+            // Arrange
+            SResult<int> SafeDivide(int x, int y)
+            {
+                try
+                {
+                    return SResult<int>.Success(x / y);
+                }
+                catch (Exception ex)
+                {
+                    return SResult<int>.Error(Errors.New(ex));
+                }
+            }
+
+            // Act
+            var result = SResult<int>.Try(() => SafeDivide(10, 0));
+
+            // Assert
+            Assert.True(result.IsFail);
+            Assert.Contains("DivideByZeroException", result.ErrorValue.Message);
+        }
+
+        [Fact(DisplayName = "TryAsync - When async function succeeds - Should return Success")]
+        public async Task TryAsync_WhenFunctionSucceeds_ShouldReturnSuccess()
+        {
+            // Arrange
+            async Task<SResult<int>> SafeDelayedDivide(int x, int y)
+            {
+                await Task.Delay(1);
+                try
+                {
+                    return SResult<int>.Success(x / y);
+                }
+                catch (Exception ex)
+                {
+                    return SResult<int>.Error(Errors.New(ex));
+                }
+            }
+
+            // Act
+            var result = await SResult<int>.TryAsync(() => SafeDelayedDivide(10, 2));
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal(5, result.SuccessValue);
+        }
+
+        [Fact(DisplayName = "TryAsync - When async function throws - Should return Error")]
+        public async Task TryAsync_WhenFunctionThrows_ShouldReturnError()
+        {
+            // Arrange
+            async Task<SResult<int>> SafeDelayedDivide(int x, int y)
+            {
+                await Task.Delay(1);
+                try
+                {
+                    return SResult<int>.Success(x / y);
+                }
+                catch (Exception ex)
+                {
+                    return SResult<int>.Error(Errors.New(ex));
+                }
+            }
+
+            // Act
+            var result = await SResult<int>.TryAsync(() => SafeDelayedDivide(10, 0));
+
+            // Assert
+            Assert.True(result.IsFail);
+            Assert.Contains("DivideByZeroException", result.ErrorValue.Message);
+        }
+
+        [Fact(DisplayName = "Try - Complex chaining with error handling")]
+        public void Try_ComplexChaining_WithErrorHandling()
+        {
+            // Arrange
+            SResult<int> SafeDivide(int x, int y)
+            {
+                try
+                {
+                    return SResult<int>.Success(x / y);
+                }
+                catch (Exception ex)
+                {
+                    return SResult<int>.Error(Errors.New(ex));
+                }
+            }
+
+            SResult<string> SafeFormat(int x)
+            {
+                try
+                {
+                    return SResult<string>.Success($"Result: {x}");
+                }
+                catch (Exception ex)
+                {
+                    return SResult<string>.Error(Errors.New(ex));
+                }
+            }
+
+            // Act
+            var result = SResult<int>.Try(() => SafeDivide(10, 2))
+                .Map(x => x * 2)
+                .Bind(x => SResult<string>.Try(() => SafeFormat(x)));
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal("Result: 10", result.SuccessValue);
+        }
+
+        [Fact(DisplayName = "TryAsync - Complex async chaining with error handling")]
+        public async Task TryAsync_ComplexChaining_WithErrorHandling()
+        {
+            // Arrange
+            async Task<SResult<int>> SafeDelayedDivide(int x, int y)
+            {
+                await Task.Delay(1);
+                try
+                {
+                    return SResult<int>.Success(x / y);
+                }
+                catch (Exception ex)
+                {
+                    return SResult<int>.Error(Errors.New(ex));
+                }
+            }
+
+            async Task<SResult<string>> SafeDelayedFormat(int x)
+            {
+                await Task.Delay(1);
+                try
+                {
+                    return SResult<string>.Success($"Result: {x}");
+                }
+                catch (Exception ex)
+                {
+                    return SResult<string>.Error(Errors.New(ex));
+                }
+            }
+
+            // Act
+            var result = await SResult<int>.TryAsync(() => SafeDelayedDivide(10, 2))
+                .MapAsync(async x => 
+                {
+                    await Task.Delay(1);
+                    return x * 2;
+                })
+                .BindAsync(x => SResult<string>.TryAsync(() => SafeDelayedFormat(x)));
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal("Result: 10", result.SuccessValue);
+        }
     }
 }

@@ -73,13 +73,13 @@ namespace Arpl.Core
         /// <typeparam name="R">The input success type.</typeparam>
         /// <typeparam name="O">The output success type.</typeparam>
         /// <param name="self">The Task of SResult to match over.</param>
-        /// <param name="leftFunc">The function to apply if the SResult is Error.</param>
-        /// <param name="rightFunc">The function to apply if the SResult is Success.</param>
-        /// <returns>A Task of SResult containing the result of the matched function.</returns>
-        public static async Task<O> Match<R, O>(this Task<SResult<R>> self, Func<Error, O> leftFunc, Func<R, O> rightFunc)
+        /// <param name="failFunc">The function to apply if the SResult is Error.</param>
+        /// <param name="successFunc">The function to apply if the SResult is Success.</param>
+        /// <returns>A Task containing the result of applying the appropriate function.</returns>
+        public static async Task<O> Match<R, O>(this Task<SResult<R>> self, Func<Error, O> failFunc, Func<R, O> successFunc)
         {
             var selfValue = await self;
-            return selfValue.Match(leftFunc, rightFunc);
+            return selfValue.Match(failFunc, successFunc);
         }
 
         /// <summary>
@@ -104,13 +104,13 @@ namespace Arpl.Core
         /// <typeparam name="R">The input success type.</typeparam>
         /// <typeparam name="O">The output success type.</typeparam>
         /// <param name="self">The Task of SResult to apply functions to.</param>
-        /// <param name="onLeft">The function to apply if the SResult is Error.</param>
-        /// <param name="onRight">The function to apply if the SResult is Success.</param>
+        /// <param name="onError">The function to apply if the SResult is Error.</param>
+        /// <param name="onSuccess">The function to apply if the SResult is Success.</param>
         /// <returns>A Task of SResult containing the result of the applied function.</returns>
-        public static async Task<SResult<O>> Apply<R, O>(this Task<SResult<R>> self, Func<Error, SResult<O>> onLeft, Func<R, SResult<O>> onRight)
+        public static async Task<SResult<O>> Apply<R, O>(this Task<SResult<R>> self, Func<Error, SResult<O>> onError, Func<R, SResult<O>> onSuccess)
         {
             var selfValue = await self;
-            return selfValue.Apply(onLeft, onRight);
+            return selfValue.Apply(onError, onSuccess);
         }
 
         /// <summary>
@@ -119,13 +119,13 @@ namespace Arpl.Core
         /// <typeparam name="R">The input success type.</typeparam>
         /// <typeparam name="O">The output success type.</typeparam>
         /// <param name="self">The Task of SResult to apply functions to.</param>
-        /// <param name="onLeft">The async function to apply if the SResult is Error.</param>
-        /// <param name="onRight">The async function to apply if the SResult is Success.</param>
+        /// <param name="onError">The async function to apply if the SResult is Error.</param>
+        /// <param name="onSuccess">The async function to apply if the SResult is Success.</param>
         /// <returns>A Task of SResult containing the result of the applied function.</returns>
-        public static async Task<SResult<O>> ApplyAsync<R, O>(this Task<SResult<R>> self, Func<Error, Task<SResult<O>>> onLeft, Func<R, Task<SResult<O>>> onRight)
+        public static async Task<SResult<O>> ApplyAsync<R, O>(this Task<SResult<R>> self, Func<Error, Task<SResult<O>>> onError, Func<R, Task<SResult<O>>> onSuccess)
         {
             var selfValue = await self;
-            return await selfValue.ApplyAsync(onLeft, onRight);
+            return await selfValue.ApplyAsync(onError, onSuccess);
         }
 
         /// <summary>

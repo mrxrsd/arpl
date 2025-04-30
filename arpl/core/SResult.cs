@@ -26,32 +26,13 @@ namespace Arpl.Core
         /// </summary>
         public abstract bool IsSuccess { get; }
 
+        /// <summary>
+        /// Converts this SResult to an Either type.
+        /// </summary>
+        /// <returns>An Either instance containing the same value as this SResult.</returns>
         public Either<Error, R> AsEither() => this;
         
-        public static SResult<R> Try<R>(Func<R> fn)
-        {
-            try
-            {
-                return SResult<R>.Success(fn());
-            }
-            catch (Exception ex)
-            {
-                return SResult<R>.Error(Errors.New(ex));
-            }
-        }
-
-        public async static Task<SResult<R>> TryAsync<R>(Func<Task<R>> fn)
-        {
-            try
-            {
-                var result = await fn();
-                return SResult<R>.Success(result);
-            }
-            catch (Exception ex)
-            {
-                return SResult<R>.Error(Errors.New(ex));
-            }
-        }
+        
 
         /// <summary>
         /// Represents an error result containing an Error value.
@@ -109,6 +90,11 @@ namespace Arpl.Core
         /// <returns>A new SResult instance representing a success.</returns>
         public static SResult<R> Success(R value) => new SResultSuccess<R>(value);
 
+        /// <summary>
+        /// Implicitly converts an SResult to an Either type.
+        /// </summary>
+        /// <param name="result">The SResult to convert.</param>
+        /// <returns>An Either instance containing the same value as the SResult.</returns>
         public static implicit operator Either<Error,R>(SResult<R> result)
         {
             return result switch

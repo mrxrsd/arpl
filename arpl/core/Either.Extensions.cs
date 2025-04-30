@@ -79,7 +79,7 @@ namespace Arpl.Core
         /// <param name="self">The Task of Either to match over.</param>
         /// <param name="leftFunc">The function to apply if the Either is Left.</param>
         /// <param name="rightFunc">The function to apply if the Either is Right.</param>
-        /// <returns>A Task of Either containing the result of the matched function.</returns>
+        /// <returns>A Task containing the result of applying the appropriate function.</returns>
         public static async Task<O> Match<L, R, O>(this Task<Either<L, R>> self, Func<L, O> leftFunc, Func<R, O> rightFunc)
         {
             var selfValue = await self;
@@ -95,7 +95,7 @@ namespace Arpl.Core
         /// <param name="self">The Task of Either to match over.</param>
         /// <param name="leftFunc">The async function to apply if the Either is Left.</param>
         /// <param name="rightFunc">The async function to apply if the Either is Right.</param>
-        /// <returns>A Task of Either containing the result of the matched function.</returns>
+        /// <returns>A Task containing the result of applying the appropriate async function.</returns>
         public static async Task<O> MatchAsync<L, R, O>(this Task<Either<L, R>> self, Func<L, Task<O>> leftFunc, Func<R, Task<O>> rightFunc)
         {
             var selfValue = await self;
@@ -144,6 +144,7 @@ namespace Arpl.Core
         /// <typeparam name="L">The left type.</typeparam>
         /// <typeparam name="R">The right type.</typeparam>
         /// <param name="self">The collection of Either to sequence.</param>
+        /// <param name="map">The function to map each value to an Either.</param>
         /// <returns>An Either containing either the first Left or a collection of all Right values.</returns>
         public static Either<L, IEnumerable<R>> Sequence<L, R>(this IEnumerable<Either<L, R>> self)
         {

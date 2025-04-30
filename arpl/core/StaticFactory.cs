@@ -39,10 +39,10 @@ namespace Arpl.Core
         public static Either<L,R> Right<L,R>(R value) => Either<L,R>.Right(value);
 
 
-        public static SResult<R> Try<R>(Func<R> fn) => SResult<R>.Try(fn);
+        public static SResult<R> Try<R>(Func<SResult<R>> fn) => SResult<R>.Try(fn);
 
 
-        public static Task<SResult<R>> TryAsync<R>(Func<Task<R>> fn) => SResult<R>.TryAsync(fn);
+        public static Task<SResult<R>> TryAsync<R>(Func<Task<SResult<R>>> fn) => SResult<R>.TryAsync(fn);
             
     }
 }
