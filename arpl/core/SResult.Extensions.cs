@@ -11,36 +11,86 @@ namespace Arpl.Core
     {
 
 
+        /// <summary>
+        /// Binds a function that returns an SResult to a Task of SResult.
+        /// </summary>
+        /// <typeparam name="R">The input success type.</typeparam>
+        /// <typeparam name="O">The output success type.</typeparam>
+        /// <param name="self">The Task of SResult to bind.</param>
+        /// <param name="bind">The function to bind.</param>
+        /// <returns>A Task of SResult containing the bound result.</returns>
         public static async Task<SResult<O>> Bind<R, O>(this Task<SResult<R>> self, Func<R, SResult<O>> bind)
         {
             var selfValue = await self;
             return selfValue.Bind(bind);
         }
 
+        /// <summary>
+        /// Asynchronously binds a function that returns a Task of SResult to a Task of SResult.
+        /// </summary>
+        /// <typeparam name="R">The input success type.</typeparam>
+        /// <typeparam name="O">The output success type.</typeparam>
+        /// <param name="self">The Task of SResult to bind.</param>
+        /// <param name="bind">The async function to bind.</param>
+        /// <returns>A Task of SResult containing the bound result.</returns>
         public static async Task<SResult<O>> BindAsync<R, O>(this Task<SResult<R>> self, Func<R, Task<SResult<O>>> bind)
         {
             var selfValue = await self;
             return await selfValue.BindAsync(bind);
         }
 
+        /// <summary>
+        /// Maps a function over the success value of a Task of SResult.
+        /// </summary>
+        /// <typeparam name="R">The input success type.</typeparam>
+        /// <typeparam name="O">The output success type.</typeparam>
+        /// <param name="self">The Task of SResult to map over.</param>
+        /// <param name="map">The function to apply to the success value.</param>
+        /// <returns>A Task of SResult containing the mapped result.</returns>
         public static async Task<SResult<O>> Map<R, O>(this Task<SResult<R>> self, Func<R, O> map)
         {
             var selfValue = await self;
             return selfValue.Map(map);
         }
 
+        /// <summary>
+        /// Asynchronously maps a function over the success value of a Task of SResult.
+        /// </summary>
+        /// <typeparam name="R">The input success type.</typeparam>
+        /// <typeparam name="O">The output success type.</typeparam>
+        /// <param name="self">The Task of SResult to map over.</param>
+        /// <param name="map">The async function to apply to the success value.</param>
+        /// <returns>A Task of SResult containing the mapped result.</returns>
         public static async Task<SResult<O>> MapAsync<R, O>(this Task<SResult<R>> self, Func<R, Task<O>> map)
         {
             var selfValue = await self;
             return await selfValue.MapAsync(map);
         }
 
+        /// <summary>
+        /// Pattern matches over a Task of SResult, applying the appropriate function based on the contained value.
+        /// </summary>
+        /// <typeparam name="R">The input success type.</typeparam>
+        /// <typeparam name="O">The output success type.</typeparam>
+        /// <param name="self">The Task of SResult to match over.</param>
+        /// <param name="leftFunc">The function to apply if the SResult is Error.</param>
+        /// <param name="rightFunc">The function to apply if the SResult is Success.</param>
+        /// <returns>A Task of SResult containing the result of the matched function.</returns>
         public static async Task<SResult<O>> Match<R, O>(this Task<SResult<R>> self, Func<Error, SResult<O>> leftFunc, Func<R, SResult<O>> rightFunc)
         {
             var selfValue = await self;
             return selfValue.Match(leftFunc, rightFunc);
         }
 
+        /// <summary>
+        /// Asynchronously pattern matches over a Task of SResult, applying the appropriate async function based on the contained value.
+        /// </summary>
+        /// <typeparam name="R">The input success type.</typeparam>
+        /// <typeparam name="O">The output success type.</typeparam>
+        /// <param name="self">The Task of SResult to match over.</param>
+        /// <param name="leftFunc">The async function to apply if the SResult is Error.</param>
+        /// <param name="rightFunc">The async function to apply if the SResult is Success.</param>
+        /// <returns>A Task of SResult containing the result of the matched function.</returns>
         public static async Task<SResult<O>> MatchAsync<R, O>(this Task<SResult<R>> self, Func<Error, Task<SResult<O>>> leftFunc, Func<R, Task<SResult<O>>> rightFunc)
         {
             var selfValue = await self;
@@ -48,12 +98,31 @@ namespace Arpl.Core
         }
 
 
+        /// <summary>
+        /// Applies one of two functions to a Task of SResult based on its state.
+        /// </summary>
+        /// <typeparam name="L">The error type.</typeparam>
+        /// <typeparam name="R">The input success type.</typeparam>
+        /// <typeparam name="O">The output success type.</typeparam>
+        /// <param name="self">The Task of SResult to apply functions to.</param>
+        /// <param name="onLeft">The function to apply if the SResult is Error.</param>
+        /// <param name="onRight">The function to apply if the SResult is Success.</param>
+        /// <returns>A Task of SResult containing the result of the applied function.</returns>
         public static async Task<SResult<O>> Apply<L, R, O>(this Task<SResult<R>> self, Func<Error, SResult<O>> onLeft, Func<R, SResult<O>> onRight)
         {
             var selfValue = await self;
             return selfValue.Apply(onLeft, onRight);
         }
 
+        /// <summary>
+        /// Asynchronously applies one of two async functions to a Task of SResult based on its state.
+        /// </summary>
+        /// <typeparam name="R">The input success type.</typeparam>
+        /// <typeparam name="O">The output success type.</typeparam>
+        /// <param name="self">The Task of SResult to apply functions to.</param>
+        /// <param name="onLeft">The async function to apply if the SResult is Error.</param>
+        /// <param name="onRight">The async function to apply if the SResult is Success.</param>
+        /// <returns>A Task of SResult containing the result of the applied function.</returns>
         public static async Task<SResult<O>> ApplyAsync<R, O>(this Task<SResult<R>> self, Func<Error, Task<SResult<O>>> onLeft, Func<R, Task<SResult<O>>> onRight)
         {
             var selfValue = await self;
