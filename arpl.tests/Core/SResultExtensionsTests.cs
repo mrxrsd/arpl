@@ -207,7 +207,7 @@ namespace Arpl.Tests.Core
             var task = Task.FromResult(SResult<int>.Success(42));
 
             // Act
-            var result = await task.MatchAsync(
+            var result = await task.Match(
                 fail => SResult<string>.Error(fail),
                 success => SResult<string>.Success($"Value: {success}"));
 
@@ -224,7 +224,7 @@ namespace Arpl.Tests.Core
             var task = Task.FromResult(SResult<int>.Error(error));
 
             // Act
-            var result = await task.MatchAsync(
+            var result = await task.Match(
                 fail => SResult<string>.Error(Errors.New($"Error: {fail.Message}")),
                 success => SResult<string>.Success($"Value: {success}"));
 

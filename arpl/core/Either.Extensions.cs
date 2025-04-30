@@ -9,77 +9,62 @@ namespace Arpl.Core
     /// </summary>
     public static class EitherExtensions
     {
-        /// <summary>
-        /// Binds a Task of Either to an async function that returns another Either.
-        /// This allows chaining multiple BindAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="L">The type of the left value.</typeparam>
-        /// <typeparam name="R">The type of the input right value.</typeparam>
-        /// <typeparam name="O">The type of the output right value.</typeparam>
-        /// <param name="task">The task containing the Either to bind.</param>
-        /// <param name="bind">The async function to bind with.</param>
-        /// <returns>A task containing the final Either.</returns>
-        public static async Task<Either<L, O>> BindAsync<L, R, O>(
-            this Task<Either<L, R>> task,
-            Func<R, Task<Either<L, O>>> bind)
+     
+        public static async Task<Either<L, O>> Bind<L, R, O>(this Task<Either<L, R>> self, Func<R, Either<L, O>> bind)
         {
-            var result = await task;
-            return await result.BindAsync(bind);
+            var selfValue = await self;
+            return selfValue.Bind(bind);
         }
 
-        /// <summary>
-        /// Maps a Task of Either using an async function.
-        /// This allows chaining multiple MapAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="L">The type of the left value.</typeparam>
-        /// <typeparam name="R">The type of the input right value.</typeparam>
-        /// <typeparam name="O">The type of the output right value.</typeparam>
-        /// <param name="task">The task containing the Either to map.</param>
-        /// <param name="map">The async function to map with.</param>
-        /// <returns>A task containing the mapped Either.</returns>
-        public static async Task<Either<L, O>> MapAsync<L, R, O>(
-            this Task<Either<L, R>> task,
-            Func<R, Task<O>> map)
+        public static async Task<Either<L, O>> BindAsync<L, R, O>(this Task<Either<L, R>> self, Func<R, Task<Either<L, O>>> bind)
         {
-            var result = await task;
-            return await result.MapAsync(map);
+            var selfValue = await self;
+            return await selfValue.BindAsync(bind);
         }
 
-        /// <summary>
-        /// Applies an async transformation to a Task of Either.
-        /// This allows chaining multiple ApplyAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="L">The type of the left value.</typeparam>
-        /// <typeparam name="R">The type of the input right value.</typeparam>
-        /// <typeparam name="O">The type of the output right value.</typeparam>
-        /// <param name="task">The task containing the Either to transform.</param>
-        /// <param name="onLeft">The async function to apply if the result is Left.</param>
-        /// <param name="onRight">The async function to apply if the result is Right.</param>
-        /// <returns>A task containing the transformed Either.</returns>
-        public static async Task<Either<L, O>> ApplyAsync<L, R, O>(
-            this Task<Either<L, R>> task,
-            Func<L, Task<Either<L, O>>> onLeft,
-            Func<R, Task<Either<L, O>>> onRight)
+        public static async Task<Either<L, O>> Map<L, R, O>(this Task<Either<L, R>> self, Func<R, O> map)
         {
-            var result = await task;
-            return await result.ApplyAsync(onLeft, onRight);
+            var selfValue = await self;
+            return selfValue.Map(map);
         }
-    
-        /// <summary>
-        /// Transforms a collection of Either into an Either of collection.
-        /// If any Either in the source is Left, returns the first Left encountered.
-        /// If all Eithers are Right, returns a Right containing all values.
-        /// </summary>
-        /// <typeparam name="L">The left type.</typeparam>
-        /// <typeparam name="R">The right type.</typeparam>
-        /// <param name="source">The collection of Either to sequence.</param>
-        /// <returns>An Either containing either the first Left or a collection of all Right values.</returns>
-        public static Either<L, IEnumerable<R>> Sequence<L, R>(
-            this IEnumerable<Either<L, R>> source)
+
+        public static async Task<Either<L, O>> MapAsync<L, R, O>(this Task<Either<L, R>> self, Func<R, Task<O>> map)
+        {
+            var selfValue = await self;
+            return await selfValue.MapAsync(map);
+        }
+
+        public static async Task<Either<L, O>> Match<L, R, O>(this Task<Either<L, R>> self, Func<L, Either<L, O>> leftFunc, Func<R, Either<L, O>> rightFunc)
+        {
+            var selfValue = await self;
+            return selfValue.Match(leftFunc, rightFunc);
+        }
+
+        public static async Task<Either<L, O>> MatchAsync<L, R, O>(this Task<Either<L, R>> self, Func<L, Task<Either<L, O>>> leftFunc, Func<R, Task<Either<L, O>>> rightFunc)
+        {
+            var selfValue = await self;
+            return await selfValue.MatchAsync(leftFunc, rightFunc);
+        }
+
+
+        public static async Task<Either<L, O>> Apply<L, R, O>(this Task<Either<L, R>> self, Func<L, Either<L, O>> onLeft, Func<R, Either<L, O>> onRight)
+        {
+            var selfValue = await self;
+            return selfValue.Apply(onLeft, onRight);
+        }
+
+        public static async Task<Either<L, O>> ApplyAsync<L, R, O>(this Task<Either<L, R>> self, Func<L, Task<Either<L,O>>> onLeft, Func<R, Task<Either<L, O>>> onRight)
+        {
+            var selfValue = await self;
+            return await selfValue.ApplyAsync(onLeft, onRight);
+        }
+
+
+        public static Either<L, IEnumerable<R>> Sequence<L, R>(this IEnumerable<Either<L, R>> self)
         {
             var result = new List<R>();
             
-            foreach (var item in source)
+            foreach (var item in self)
             {
                 if (item.IsLeft)
                     return Either<L, IEnumerable<R>>.Left(item.LeftValue);
@@ -90,21 +75,12 @@ namespace Arpl.Core
             return Either<L, IEnumerable<R>>.Right(result);
         }
 
-        /// <summary>
-        /// Asynchronously transforms a collection of Either tasks into an Either of collection.
-        /// If any Either in the source is Left, returns the first Left encountered.
-        /// If all Eithers are Right, returns a Right containing all values.
-        /// </summary>
-        /// <typeparam name="L">The left type.</typeparam>
-        /// <typeparam name="R">The right type.</typeparam>
-        /// <param name="source">The collection of Either tasks to sequence.</param>
-        /// <returns>A task of Either containing either the first Left or a collection of all Right values.</returns>
-        public static async Task<Either<L, IEnumerable<R>>> SequenceAsync<L, R>(
-            this IEnumerable<Task<Either<L, R>>> source)
+        
+        public static async Task<Either<L, IEnumerable<R>>> SequenceAsync<L, R>(this IEnumerable<Task<Either<L, R>>> self)
         {
             var result = new List<R>();
             
-            foreach (var task in source)
+            foreach (var task in self)
             {
                 var item = await task;
                 if (item.IsLeft)
@@ -116,39 +92,17 @@ namespace Arpl.Core
             return Either<L, IEnumerable<R>>.Right(result);
         }
 
-        /// <summary>
-        /// Transforms a Task of collection of Either into a Task of Either of collection.
-        /// This allows chaining multiple SequenceAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="L">The left type.</typeparam>
-        /// <typeparam name="R">The right type.</typeparam>
-        /// <param name="task">The task containing the collection of Either to sequence.</param>
-        /// <returns>A Task of Either containing either the first Left or a collection of all Right values.</returns>
-        public static async Task<Either<L, IEnumerable<R>>> SequenceAsync<L, R>(
-            this Task<IEnumerable<Either<L, R>>> task)
+        public static async Task<Either<L, IEnumerable<R>>> SequenceAsync<L, R>(this Task<IEnumerable<Either<L, R>>> self)
         {
-            var source = await task;
+            var source = await self;
             return source.Sequence();
         }
 
-        /// <summary>
-        /// Transforms a collection of values into an Either of collection by applying a mapping function.
-        /// If any mapped value results in Left, returns the first Left encountered.
-        /// If all mapped values are Right, returns a Right containing all values.
-        /// </summary>
-        /// <typeparam name="L">The left type.</typeparam>
-        /// <typeparam name="T">The input type.</typeparam>
-        /// <typeparam name="R">The right type.</typeparam>
-        /// <param name="source">The collection of values to traverse.</param>
-        /// <param name="map">The function to map each value to an Either.</param>
-        /// <returns>An Either containing either the first Left or a collection of all Right values.</returns>
-        public static Either<L, IEnumerable<R>> Traverse<L, T, R>(
-            this IEnumerable<T> source,
-            Func<T, Either<L, R>> map)
+        public static Either<L, IEnumerable<R>> Traverse<L, T, R>(this IEnumerable<T> self, Func<T, Either<L, R>> map)
         {
             var result = new List<R>();
             
-            foreach (var item in source)
+            foreach (var item in self)
             {
                 var mapped = map(item);
                 if (mapped.IsLeft)
@@ -160,24 +114,11 @@ namespace Arpl.Core
             return Either<L, IEnumerable<R>>.Right(result);
         }
 
-        /// <summary>
-        /// Transforms a collection of values into a Task of Either of collection by applying an async mapping function.
-        /// If any mapped value results in Left, returns the first Left encountered.
-        /// If all mapped values are Right, returns a Right containing all values.
-        /// </summary>
-        /// <typeparam name="L">The left type.</typeparam>
-        /// <typeparam name="T">The input type.</typeparam>
-        /// <typeparam name="R">The right type.</typeparam>
-        /// <param name="source">The collection of values to traverse.</param>
-        /// <param name="map">The async function to map each value to an Either.</param>
-        /// <returns>A Task of Either containing either the first Left or a collection of all Right values.</returns>
-        public static async Task<Either<L, IEnumerable<R>>> TraverseAsync<L, T, R>(
-            this IEnumerable<T> source,
-            Func<T, Task<Either<L, R>>> map)
+        public static async Task<Either<L, IEnumerable<R>>> TraverseAsync<L, T, R>(this IEnumerable<T> self, Func<T, Task<Either<L, R>>> map)
         {
             var result = new List<R>();
             
-            foreach (var item in source)
+            foreach (var item in self)
             {
                 var mapped = await map(item);
                 if (mapped.IsLeft)
@@ -189,82 +130,17 @@ namespace Arpl.Core
             return Either<L, IEnumerable<R>>.Right(result);
         }
 
-        /// <summary>
-        /// Transforms a Task of collection of values into a Task of Either of collection by applying a mapping function.
-        /// This allows chaining multiple TraverseAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="L">The left type.</typeparam>
-        /// <typeparam name="T">The input type.</typeparam>
-        /// <typeparam name="R">The right type.</typeparam>
-        /// <param name="task">The task containing the collection of values to traverse.</param>
-        /// <param name="map">The function to map each value to an Either.</param>
-        /// <returns>A Task of Either containing either the first Left or a collection of all Right values.</returns>
-        public static async Task<Either<L, IEnumerable<R>>> TraverseAsync<L, T, R>(
-            this Task<IEnumerable<T>> task,
-            Func<T, Either<L, R>> map)
+        public static async Task<Either<L, IEnumerable<R>>> Traverse<L, T, R>(this Task<IEnumerable<T>> self, Func<T, Either<L, R>> map)
         {
-            var source = await task;
+            var source = await self;
             return source.Traverse(map);
         }
 
-        /// <summary>
-        /// Transforms a Task of collection of values into a Task of Either of collection by applying an async mapping function.
-        /// This allows chaining multiple TraverseAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="L">The left type.</typeparam>
-        /// <typeparam name="T">The input type.</typeparam>
-        /// <typeparam name="R">The right type.</typeparam>
-        /// <param name="task">The task containing the collection of values to traverse.</param>
-        /// <param name="map">The async function to map each value to an Either.</param>
-        /// <returns>A Task of Either containing either the first Left or a collection of all Right values.</returns>
-        public static async Task<Either<L, IEnumerable<R>>> TraverseAsync<L, T, R>(
-            this Task<IEnumerable<T>> task,
-            Func<T, Task<Either<L, R>>> map)
+        public static async Task<Either<L, IEnumerable<R>>> TraverseAsync<L, T, R>(this Task<IEnumerable<T>> self, Func<T, Task<Either<L, R>>> map)
         {
-            var source = await task;
+            var source = await self;
             return await source.TraverseAsync(map);
         }
 
-        /// <summary>
-        /// Matches a Task of Either using async functions.
-        /// This allows chaining multiple MatchAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="L">The type of the left value.</typeparam>
-        /// <typeparam name="R">The type of the input right value.</typeparam>
-        /// <typeparam name="O">The type of the output value.</typeparam>
-        /// <param name="task">The task containing the Either to match.</param>
-        /// <param name="leftFunc">The async function to apply if the result is Left.</param>
-        /// <param name="rightFunc">The async function to apply if the result is Right.</param>
-        /// <returns>A task containing the matched Either.</returns>
-        public static async Task<Either<L, O>> MatchAsync<L, R, O>(
-            this Task<Either<L, R>> task,
-            Func<L, Either<L, O>> leftFunc,
-            Func<R, Either<L, O>> rightFunc)
-        {
-            var result = await task;
-            return result.Match(leftFunc, rightFunc);
-        }
-
-        /// <summary>
-        /// Matches a Task of Either using async functions.
-        /// This allows chaining multiple MatchAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="L">The type of the left value.</typeparam>
-        /// <typeparam name="R">The type of the input right value.</typeparam>
-        /// <typeparam name="O">The type of the output value.</typeparam>
-        /// <param name="task">The task containing the Either to match.</param>
-        /// <param name="leftFunc">The async function to apply if the result is Left.</param>
-        /// <param name="rightFunc">The async function to apply if the result is Right.</param>
-        /// <returns>A task containing the matched Either.</returns>
-        public static async Task<Either<L, O>> MatchAsync<L, R, O>(
-            this Task<Either<L, R>> task,
-            Func<L, Task<Either<L, O>>> leftFunc,
-            Func<R, Task<Either<L, O>>> rightFunc)
-        {
-            var result = await task;
-            if (result.IsLeft)
-                return await leftFunc(result.LeftValue);
-            return await rightFunc(result.RightValue);
-        }
     }
 }

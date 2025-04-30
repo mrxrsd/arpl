@@ -171,7 +171,7 @@ namespace Arpl.Tests.Core
             
             // Act
             var result = await task
-                .TraverseAsync(x => Either<string, int>.Right(x * 2))
+                .Traverse(x => Either<string, int>.Right(x * 2))
                 .MapAsync(xs => Task.FromResult(xs.Select(x => $"Value: {x}")));
             
             // Assert
@@ -203,7 +203,7 @@ namespace Arpl.Tests.Core
             var task = Task.FromResult(Either<string, int>.Right(42));
 
             // Act
-            var result = await task.MatchAsync(
+            var result = await task.Match(
                 left => Either<string, string>.Left(left),
                 right => Either<string, string>.Right($"Value: {right}"));
 
@@ -219,7 +219,7 @@ namespace Arpl.Tests.Core
             var task = Task.FromResult(Either<string, int>.Left("error"));
 
             // Act
-            var result = await task.MatchAsync(
+            var result = await task.Match(
                 left => Either<string, string>.Left($"Error: {left}"),
                 right => Either<string, string>.Right($"Value: {right}"));
 

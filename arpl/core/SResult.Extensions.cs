@@ -9,59 +9,57 @@ namespace Arpl.Core
     /// </summary>
     public static class SResultExtensions
     {
-        /// <summary>
-        /// Binds a Task of SResult to an async function that returns another SResult.
-        /// This allows chaining multiple BindAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="T">The type of the input SResult value.</typeparam>
-        /// <typeparam name="TResult">The type of the output SResult value.</typeparam>
-        /// <param name="task">The task containing the SResult to bind.</param>
-        /// <param name="bind">The async function to bind with.</param>
-        /// <returns>A task containing the final SResult.</returns>
-        public static async Task<SResult<TResult>> BindAsync<T, TResult>(
-            this Task<SResult<T>> task,
-            Func<T, Task<SResult<TResult>>> bind)
+
+
+        public static async Task<SResult<O>> Bind<R, O>(this Task<SResult<R>> self, Func<R, SResult<O>> bind)
         {
-            var result = await task;
-            return await result.BindAsync(bind);
+            var selfValue = await self;
+            return selfValue.Bind(bind);
         }
 
-        /// <summary>
-        /// Maps a Task of SResult using an async function.
-        /// This allows chaining multiple MapAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="T">The type of the input SResult value.</typeparam>
-        /// <typeparam name="TResult">The type of the output value.</typeparam>
-        /// <param name="task">The task containing the SResult to map.</param>
-        /// <param name="map">The async function to map with.</param>
-        /// <returns>A task containing the mapped SResult.</returns>
-        public static async Task<SResult<TResult>> MapAsync<T, TResult>(
-            this Task<SResult<T>> task,
-            Func<T, Task<TResult>> map)
+        public static async Task<SResult<O>> BindAsync<R, O>(this Task<SResult<R>> self, Func<R, Task<SResult<O>>> bind)
         {
-            var result = await task;
-            return await result.MapAsync(map);
+            var selfValue = await self;
+            return await selfValue.BindAsync(bind);
         }
 
-        /// <summary>
-        /// Applies an async transformation to a Task of SResult.
-        /// This allows chaining multiple ApplyAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="T">The type of the input SResult value.</typeparam>
-        /// <typeparam name="TResult">The type of the output value.</typeparam>
-        /// <param name="task">The task containing the SResult to transform.</param>
-        /// <param name="onFail">The async function to apply if the result is a failure.</param>
-        /// <param name="onSuccess">The async function to apply if the result is a success.</param>
-        /// <returns>A task containing the transformed SResult.</returns>
-        public static async Task<SResult<TResult>> ApplyAsync<T, TResult>(
-            this Task<SResult<T>> task,
-            Func<Error, Task<SResult<TResult>>> onFail,
-            Func<T, Task<SResult<TResult>>> onSuccess)
+        public static async Task<SResult<O>> Map<R, O>(this Task<SResult<R>> self, Func<R, O> map)
         {
-            var result = await task;
-            return await result.ApplyAsync(onFail, onSuccess);
+            var selfValue = await self;
+            return selfValue.Map(map);
         }
-    
+
+        public static async Task<SResult<O>> MapAsync<R, O>(this Task<SResult<R>> self, Func<R, Task<O>> map)
+        {
+            var selfValue = await self;
+            return await selfValue.MapAsync(map);
+        }
+
+        public static async Task<SResult<O>> Match<R, O>(this Task<SResult<R>> self, Func<Error, SResult<O>> leftFunc, Func<R, SResult<O>> rightFunc)
+        {
+            var selfValue = await self;
+            return selfValue.Match(leftFunc, rightFunc);
+        }
+
+        public static async Task<SResult<O>> MatchAsync<R, O>(this Task<SResult<R>> self, Func<Error, Task<SResult<O>>> leftFunc, Func<R, Task<SResult<O>>> rightFunc)
+        {
+            var selfValue = await self;
+            return await selfValue.MatchAsync(leftFunc, rightFunc);
+        }
+
+
+        public static async Task<SResult<O>> Apply<L, R, O>(this Task<SResult<R>> self, Func<Error, SResult<O>> onLeft, Func<R, SResult<O>> onRight)
+        {
+            var selfValue = await self;
+            return selfValue.Apply(onLeft, onRight);
+        }
+
+        public static async Task<SResult<O>> ApplyAsync<R, O>(this Task<SResult<R>> self, Func<Error, Task<SResult<O>>> onLeft, Func<R, Task<SResult<O>>> onRight)
+        {
+            var selfValue = await self;
+            return await selfValue.ApplyAsync(onLeft, onRight);
+        }
+
         /// <summary>
         /// Transforms a collection of SResult into an SResult of collection.
         /// If any SResult in the source is Error, returns the first Error encountered.
@@ -213,46 +211,6 @@ namespace Arpl.Core
         {
             var source = await task;
             return await source.TraverseAsync(map);
-        }
-
-        /// <summary>
-        /// Matches a Task of SResult using functions.
-        /// This allows chaining multiple MatchAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="T">The type of the input SResult value.</typeparam>
-        /// <typeparam name="O">The type of the output value.</typeparam>
-        /// <param name="task">The task containing the SResult to match.</param>
-        /// <param name="failFunc">The function to apply if the result is a failure.</param>
-        /// <param name="successFunc">The function to apply if the result is a success.</param>
-        /// <returns>A task containing the matched SResult.</returns>
-        public static async Task<SResult<O>> MatchAsync<T, O>(
-            this Task<SResult<T>> task,
-            Func<Error, SResult<O>> failFunc,
-            Func<T, SResult<O>> successFunc)
-        {
-            var result = await task;
-            return result.Match(failFunc, successFunc);
-        }
-
-        /// <summary>
-        /// Matches a Task of SResult using async functions.
-        /// This allows chaining multiple MatchAsync calls without intermediate awaits.
-        /// </summary>
-        /// <typeparam name="T">The type of the input SResult value.</typeparam>
-        /// <typeparam name="O">The type of the output value.</typeparam>
-        /// <param name="task">The task containing the SResult to match.</param>
-        /// <param name="failFunc">The async function to apply if the result is a failure.</param>
-        /// <param name="successFunc">The async function to apply if the result is a success.</param>
-        /// <returns>A task containing the matched SResult.</returns>
-        public static async Task<SResult<O>> MatchAsync<T, O>(
-            this Task<SResult<T>> task,
-            Func<Error, Task<SResult<O>>> failFunc,
-            Func<T, Task<SResult<O>>> successFunc)
-        {
-            var result = await task;
-            if (result.IsFail)
-                return await failFunc(result.ErrorValue);
-            return await successFunc(result.SuccessValue);
         }
     }
 }
