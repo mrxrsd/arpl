@@ -39,9 +39,20 @@ namespace Arpl.Core
         public static Either<L,R> Right<L,R>(R value) => Either<L,R>.Right(value);
 
 
+        /// <summary>
+        /// Executes a function that returns an SResult and handles any exceptions by wrapping them in a failure result.
+        /// </summary>
+        /// <typeparam name="R">The type of the success value.</typeparam>
+        /// <param name="fn">The function to execute that returns an SResult.</param>
+        /// <returns>The result of the function if successful, or a failure result containing the exception if an error occurs.</returns>
         public static SResult<R> Try<R>(Func<SResult<R>> fn) => SResult<R>.Try(fn);
 
-
+        /// <summary>
+        /// Executes an asynchronous function that returns an SResult and handles any exceptions by wrapping them in a failure result.
+        /// </summary>
+        /// <typeparam name="R">The type of the success value.</typeparam>
+        /// <param name="fn">The asynchronous function to execute that returns an SResult.</param>
+        /// <returns>A task that represents the asynchronous operation, containing either the successful result or a failure result with the exception.</returns>
         public static Task<SResult<R>> TryAsync<R>(Func<Task<SResult<R>>> fn) => SResult<R>.TryAsync(fn);
             
     }
