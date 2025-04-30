@@ -101,14 +101,13 @@ namespace Arpl.Core
         /// <summary>
         /// Applies one of two functions to a Task of SResult based on its state.
         /// </summary>
-        /// <typeparam name="L">The error type.</typeparam>
         /// <typeparam name="R">The input success type.</typeparam>
         /// <typeparam name="O">The output success type.</typeparam>
         /// <param name="self">The Task of SResult to apply functions to.</param>
         /// <param name="onLeft">The function to apply if the SResult is Error.</param>
         /// <param name="onRight">The function to apply if the SResult is Success.</param>
         /// <returns>A Task of SResult containing the result of the applied function.</returns>
-        public static async Task<SResult<O>> Apply<L, R, O>(this Task<SResult<R>> self, Func<Error, SResult<O>> onLeft, Func<R, SResult<O>> onRight)
+        public static async Task<SResult<O>> Apply<R, O>(this Task<SResult<R>> self, Func<Error, SResult<O>> onLeft, Func<R, SResult<O>> onRight)
         {
             var selfValue = await self;
             return selfValue.Apply(onLeft, onRight);

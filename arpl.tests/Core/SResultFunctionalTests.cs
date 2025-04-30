@@ -222,5 +222,96 @@ namespace Arpl.Tests.Core
             Assert.True(final.IsSuccess);
             Assert.Equal("Final: 84", final.SuccessValue);
         }
+        [Fact(DisplayName = "Complex chaining - Mix of Map, Bind, and Match with sync and async")]
+        public async Task ComplexChaining_MixOfOperations_ShouldWorkCorrectly()
+        {
+            // Arrange
+            var result = SResult<int>.Success(42);
+            
+            // Act
+            var final = await result
+                .Map(x => x + 10)  // sync map: 42 -> 52
+                .BindAsync(async x =>
+                {
+                    await Task.Delay(1);
+                    return x % 2 == 0
+                        ? SResult<double>.Success(x * 1.5)
+                        : SResult<double>.Error(Errors.New("Odd number not allowed"));
+                })  // async bind: 52 -> 78.0
+                .MapAsync(async x =>
+                {
+                    await Task.Delay(1);
+                    return x.ToString("F1");
+                })  // async map: 78.0 -> "78.0"
+                .Match(
+                    fail => SResult<string>.Error(fail),
+                    success => SResult<string>.Success($"Success: {success}"));
+            
+            // Assert
+            Assert.True(final.IsSuccess);
+            Assert.Equal("Success: 78,0", final.SuccessValue);
+        }
+
+        [Fact(DisplayName = "Complex error handling - Mix of sync and async operations")]
+        public async Task ComplexErrorHandling_MixOfOperations_ShouldPropagate()
+        {
+            // Arrange
+            var result = SResult<int>.Success(42);
+            
+            // Act
+            var final = await result
+                .MapAsync(async x =>
+                {
+                    await Task.Delay(1);
+                    return x * 2;
+                })  // async map: 42 -> 84
+                .Bind(x => x > 50
+                    ? SResult<int>.Error(Errors.New("Value too large"))
+                    : SResult<int>.Success(x))  // sync bind: fails with Error
+                .Map(x => x.ToString())  // not executed due to Error
+                .ApplyAsync(
+                    async fail =>
+                    {
+                        await Task.Delay(1);
+                        return SResult<string>.Error(Errors.New($"Validation failed: {fail.Message}"));
+                    },
+                    async success =>
+                    {
+                        await Task.Delay(1);
+                        return SResult<string>.Success($"Valid: {success}");
+                    });
+            
+            // Assert
+            Assert.True(final.IsFail);
+            Assert.Equal("Validation failed: Value too large", final.ErrorValue.Message);
+        }
+
+        [Fact(DisplayName = "Nested operations - Mix of sync and async with multiple binds")]
+        public async Task NestedOperations_MixOfOperations_ShouldWorkCorrectly()
+        {
+            // Arrange
+            var result = SResult<int>.Success(42);
+            
+            // Act
+            var final = await result
+                .BindAsync(async x =>
+                {
+                    await Task.Delay(1);
+                    return SResult<int>.Success(x * 2);
+                })
+                .Bind(x => SResult<(int original, int doubled)>.Success((42, x)))  // sync bind: create tuple
+                .MapAsync(async tuple =>
+                {
+                    await Task.Delay(1);
+                    return tuple.doubled / tuple.original;
+                })  // async map: calculate ratio
+                .Apply(
+                    fail => SResult<string>.Error(fail),
+                    success => SResult<string>.Success($"Ratio: {success:F1}"));
+            
+            // Assert
+            Assert.True(final.IsSuccess);
+            Assert.Equal("Ratio: 2,0", final.SuccessValue);
+        }
     }
 }

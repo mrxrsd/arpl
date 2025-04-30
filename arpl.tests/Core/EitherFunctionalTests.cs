@@ -220,5 +220,96 @@ namespace Arpl.Tests.Core
             Assert.True(final.IsRight);
             Assert.Equal("Final: 84", final.RightValue);
         }
+        [Fact(DisplayName = "Complex chaining - Mix of Map, Bind, and Match with sync and async")]
+        public async Task ComplexChaining_MixOfOperations_ShouldWorkCorrectly()
+        {
+            // Arrange
+            var either = Either<string, int>.Right(42);
+            
+            // Act
+            var result = await either
+                .Map(x => x + 10)  // sync map: 42 -> 52
+                .BindAsync(async x =>
+                {
+                    await Task.Delay(1);
+                    return x % 2 == 0
+                        ? Either<string, double>.Right(x * 1.5)
+                        : Either<string, double>.Left("Odd number not allowed");
+                })  // async bind: 52 -> 78.0
+                .MapAsync(async x =>
+                {
+                    await Task.Delay(1);
+                    return x.ToString("F1");
+                })  // async map: 78.0 -> "78.0"
+                .Match(
+                    left => Either<string, string>.Left($"Error: {left}"),
+                    right => Either<string, string>.Right($"Success: {right}"));
+            
+            // Assert
+            Assert.True(result.IsRight);
+            Assert.Equal("Success: 78,0", result.RightValue);
+        }
+
+        [Fact(DisplayName = "Complex error handling - Mix of sync and async operations")]
+        public async Task ComplexErrorHandling_MixOfOperations_ShouldPropagate()
+        {
+            // Arrange
+            var either = Either<string, int>.Right(42);
+            
+            // Act
+            var result = await either
+                .MapAsync(async x =>
+                {
+                    await Task.Delay(1);
+                    return x * 2;
+                })  // async map: 42 -> 84
+                .Bind(x => x > 50
+                    ? Either<string, int>.Left("Value too large")
+                    : Either<string, int>.Right(x))  // sync bind: fails with Left
+                .Map(x => x.ToString())  // not executed due to Left
+                .ApplyAsync(
+                    async left =>
+                    {
+                        await Task.Delay(1);
+                        return Either<string, string>.Left($"Validation failed: {left}");
+                    },
+                    async right =>
+                    {
+                        await Task.Delay(1);
+                        return Either<string, string>.Right($"Valid: {right}");
+                    });
+            
+            // Assert
+            Assert.True(result.IsLeft);
+            Assert.Equal("Validation failed: Value too large", result.LeftValue);
+        }
+
+        [Fact(DisplayName = "Nested operations - Mix of sync and async with multiple binds")]
+        public async Task NestedOperations_MixOfOperations_ShouldWorkCorrectly()
+        {
+            // Arrange
+            var either = Either<string, int>.Right(42);
+            
+            // Act
+            var result = await either
+                .BindAsync(async x =>
+                {
+                    await Task.Delay(1);
+                    return Either<string, int>.Right(x * 2);
+                })
+                .Bind(x => Either<string, (int original, int doubled)>.Right((42, x)))  // sync bind: create tuple
+                .MapAsync(async tuple =>
+                {
+                    await Task.Delay(1);
+                    return tuple.doubled / tuple.original;
+                })  // async map: calculate ratio
+                .Apply(
+                    left => Either<string, string>.Left(left),
+                    right => Either<string, string>.Right($"Ratio: {right:F1}"));
+            
+            // Assert
+            Assert.True(result.IsRight);
+            Assert.Equal("Ratio: 2,0", result.RightValue);
+        }
     }
 }
