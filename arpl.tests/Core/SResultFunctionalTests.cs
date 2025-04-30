@@ -331,7 +331,7 @@ namespace Arpl.Tests.Core
             }
 
             // Act
-            var result = SResult<int>.Try(() => SafeDivide(10, 2));
+            var result = SResult.Try(() => SafeDivide(10, 2));
 
             // Assert
             Assert.True(result.IsSuccess);
@@ -355,7 +355,7 @@ namespace Arpl.Tests.Core
             }
 
             // Act
-            var result = SResult<int>.Try(() => SafeDivide(10, 0));
+            var result = SResult.Try(() => SafeDivide(10, 0));
 
             // Assert
             Assert.True(result.IsFail);
@@ -380,7 +380,7 @@ namespace Arpl.Tests.Core
             }
 
             // Act
-            var result = await SResult<int>.TryAsync(() => SafeDelayedDivide(10, 2));
+            var result = await SResult.TryAsync(() => SafeDelayedDivide(10, 2));
 
             // Assert
             Assert.True(result.IsSuccess);
@@ -405,7 +405,7 @@ namespace Arpl.Tests.Core
             }
 
             // Act
-            var result = await SResult<int>.TryAsync(() => SafeDelayedDivide(10, 0));
+            var result = await SResult.TryAsync(() => SafeDelayedDivide(10, 0));
 
             // Assert
             Assert.True(result.IsFail);
@@ -441,9 +441,9 @@ namespace Arpl.Tests.Core
             }
 
             // Act
-            var result = SResult<int>.Try(() => SafeDivide(10, 2))
+            var result = SResult.Try(() => SafeDivide(10, 2))
                 .Map(x => x * 2)
-                .Bind(x => SResult<string>.Try(() => SafeFormat(x)));
+                .Bind(x => SResult.Try(() => SafeFormat(x)));
 
             // Assert
             Assert.True(result.IsSuccess);
@@ -481,13 +481,13 @@ namespace Arpl.Tests.Core
             }
 
             // Act
-            var result = await SResult<int>.TryAsync(() => SafeDelayedDivide(10, 2))
+            var result = await SResult.TryAsync(() => SafeDelayedDivide(10, 2))
                 .MapAsync(async x => 
                 {
                     await Task.Delay(1);
                     return x * 2;
                 })
-                .BindAsync(x => SResult<string>.TryAsync(() => SafeDelayedFormat(x)));
+                .BindAsync(x => SResult.TryAsync(() => SafeDelayedFormat(x)));
 
             // Assert
             Assert.True(result.IsSuccess);

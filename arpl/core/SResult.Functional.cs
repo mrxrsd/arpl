@@ -7,12 +7,27 @@ namespace Arpl.Core
     {
 
         /// <summary>
-        /// Executes a function that returns an SResult.
-        /// If the function throws an exception, it will be caught and returned as an Error.
+        /// Executes a function that returns an SResult and handles any exceptions that occur.
+        /// This method provides a safe way to execute operations that may fail, wrapping them in an SResult.
+        /// If the function throws an exception, it will be caught and returned as an Error result.
+        /// If the function succeeds, its SResult will be returned directly.
         /// </summary>
-        /// <typeparam name="R">The type of the return value.</typeparam>
-        /// <param name="fn">The function that returns an SResult to execute.</param>
-        /// <returns>The SResult returned by the function, or an error SResult if an exception occurred.</returns>
+        /// <typeparam name="R">The type of the success value in the returned SResult.</typeparam>
+        /// <param name="fn">A function that returns an SResult to execute. The function should handle its own errors by returning Error results.</param>
+        /// <returns>Either the SResult returned by the function, or an Error SResult containing the thrown exception.</returns>
+        /// <example>
+        /// <code>
+        /// SResult&lt;int&gt; Divide(int x, int y) {
+        ///     try {
+        ///         return SResult&lt;int&gt;.Success(x / y);
+        ///     } catch (Exception ex) {
+        ///         return SResult&lt;int&gt;.Error(Errors.New(ex));
+        ///     }
+        /// }
+        /// 
+        /// var result = SResult.Try(() => Divide(10, 2));
+        /// </code>
+        /// </example>
         public static SResult<R> Try<R>(Func<SResult<R>> fn)
         {
             try
@@ -26,12 +41,28 @@ namespace Arpl.Core
         }
 
         /// <summary>
-        /// Executes an async function that returns an SResult.
-        /// If the function throws an exception, it will be caught and returned as an Error.
+        /// Executes an asynchronous function that returns an SResult and handles any exceptions that occur.
+        /// This method provides a safe way to execute async operations that may fail, wrapping them in an SResult.
+        /// If the function throws an exception, it will be caught and returned as an Error result.
+        /// If the function succeeds, its SResult will be returned directly.
         /// </summary>
-        /// <typeparam name="R">The type of the return value.</typeparam>
-        /// <param name="fn">The async function that returns an SResult to execute.</param>
-        /// <returns>A Task containing the SResult returned by the function, or an error SResult if an exception occurred.</returns>
+        /// <typeparam name="R">The type of the success value in the returned SResult.</typeparam>
+        /// <param name="fn">An async function that returns an SResult to execute. The function should handle its own errors by returning Error results.</param>
+        /// <returns>A Task containing either the SResult returned by the function, or an Error SResult containing the thrown exception.</returns>
+        /// <example>
+        /// <code>
+        /// async Task&lt;SResult&lt;int&gt;&gt; DelayedDivide(int x, int y) {
+        ///     await Task.Delay(100); // Simulated async work
+        ///     try {
+        ///         return SResult&lt;int&gt;.Success(x / y);
+        ///     } catch (Exception ex) {
+        ///         return SResult&lt;int&gt;.Error(Errors.New(ex));
+        ///     }
+        /// }
+        /// 
+        /// var result = await SResult.TryAsync(() => DelayedDivide(10, 2));
+        /// </code>
+        /// </example>
         public async static Task<SResult<R>> TryAsync<R>(Func<Task<SResult<R>>> fn)
         {
             try
