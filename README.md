@@ -43,7 +43,9 @@ A lightweight C# library providing robust discriminated unions for error handlin
   - [Match & MatchAsync](#match--matchasync)
   - [Sequence & SequenceAsync](#sequence--sequenceasync)
   - [Traverse & TraverseAsync](#traverse--traverseasync)
+  - [Try & TryAsync](#try--tryasync)
   - [Apply & ApplyAsync](#apply--applyasync)
+  - [Mixing Sync and Async Methods](#mixing-sync-and-async-methods)
 - [Best Practices](#best-practices)
   - [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
 - [Demo Application](#demo-application)
@@ -357,15 +359,19 @@ var left = Left<string, int>("error"); // Either<string, int>
 
 // Create an Either with a right value
 var right = Right<string, int>(42); // Either<string, int>
+
+// Try example
+var result = Try(() => Success(int.Parse(input))); // SResult<int>
 ```
 
-### Available Methods
-- `Success<T>(T value)`: Creates a successful `SResult<T>`.
-- `Fail<T>(Error value)`: Creates a failed `SResult<T>`.
-- `Left<L, R>(L value)`: Creates an `Either<L, R>` with a left value.
-- `Right<L, R>(R value)`: Creates an `Either<L, R>` with a right value.
+Available factory methods:
 
-These methods make it easier to create values for functional flows and tests, making your code cleaner and more readable.
+1. **Success<T>(T value)**: Creates a successful `SResult<T>`
+2. **Fail<T>(Error value)**: Creates a failed `SResult<T>`
+3. **Left<L,R>(L value)**: Creates an `Either<L,R>` with left value
+4. **Right<L,R>(R value)**: Creates an `Either<L,R>` with right value
+5. **Try<R>(Func<SResult<R>>)**: Safely executes a function that returns `SResult<R>`
+6. **TryAsync<R>(Func<Task<SResult<R>>>)**: Safely executes an async function that returns `Task<SResult<R>>`
 
 ## Type Features
 
@@ -400,12 +406,15 @@ These methods make it easier to create values for functional flows and tests, ma
 - `ErrorValue` - Gets the error value
 - `Match` - Pattern matching for transforming or handling the result
 - `MatchAsync` - Asynchronous pattern matching for handling the result
+- `AsEither` - Converts the SResult<R> to Either<Error, R>
 - `Map` - Transforms the success value using a mapping function (if present)
 - `MapAsync` - Transforms the success value using an async mapping function (if present)
 - `Bind` - Chains operations that return SResult (monadic bind)
 - `BindAsync` - Asynchronously chains operations that return SResult
 - `Apply` - Transforms both error and success values into a new SResult
 - `ApplyAsync` - Asynchronously transforms both error and success values into a new SResult
+- `Try` - Executes a function safely, catching any exceptions into an error result
+- `TryAsync` - Executes an async function safely, catching any exceptions into an error result
 - `Sequence` - Transforms a collection of SResult into an SResult of collection
 - `SequenceAsync` - Asynchronously transforms a collection of SResult into an SResult of collection
 - `Traverse` - Maps and sequences in one step
@@ -541,6 +550,36 @@ var contents = await urls.TraverseAsync(async url => {
 });
 ```
 
+### Try & TryAsync
+
+Start functional chains with exception-safe operations:
+
+```csharp
+// Start a chain with Try for sync operations
+var result = Try(() => int.Parse(input))        // Returns SResult<int>
+    .Map(x => x * 2)                           // Transform if successful
+    .Bind(x => Validate(x));                   // Chain with another operation
+
+// Complex validation chain starting with Try
+var userResult = Try(() => {
+    if (string.IsNullOrEmpty(email))
+        return Fail<User>(Errors.New("Email required"));
+    return Success(new User(email));
+})
+.Bind(ValidateUser)                            // Chain with other validations
+.BindAsync(SaveUserAsync);                     // Continue with async operations
+
+// Start async chains with TryAsync
+var apiResult = await TryAsync(async () => {
+    var response = await httpClient.GetAsync(url);
+    return response.IsSuccessStatusCode
+        ? Success(await response.Content.ReadAsStringAsync())
+        : Fail<string>(Errors.New($"API error: {response.StatusCode}"));
+})
+.Map(json => JsonSerializer.Deserialize<User>(json))  // Transform the result
+.BindAsync(ValidateUserAsync);                       // Continue the chain
+```
+
 ### Apply & ApplyAsync
 
 Transform both success and error cases:
@@ -558,6 +597,27 @@ var handled = either.Apply(
     status => Either<string, string>.Right($"Error {status}"),
     content => Either<string, string>.Right($"Content: {content}"));
 ```
+
+### Mixing Sync and Async Methods
+
+ARPL provides seamless integration between synchronous and asynchronous operations in your functional chains.
+
+> **Note**: Once your chain includes an async operation (like `BindAsync` or `MapAsync`), all subsequent operations become awaitable. This means they will return `Task<T>`, even if the operations themselves are synchronous. ARPL handles this transition automatically, allowing you to write clean code without worrying about async/sync conversions.
+
+```csharp
+// Start with async operation
+var result = await GetUserAsync(id)        // Returns Task<SResult<User>>
+    .Map(user => user.Name)               // Sync op, but returns Task<SResult<string>>
+    .BindAsync(ValidateNameAsync)         // Async op
+    .Map(name => name.ToUpper());         // Sync op, but returns Task<SResult<string>>
+
+// Start with sync operation
+var syncResult = Success("test")           // Returns SResult<string>
+    .Map(str => str.ToUpper())           // Still sync, returns SResult<string>
+    .BindAsync(ValidateAsync)            // Now async! Returns Task<SResult<string>>
+    .Map(str => str.Length);             // Sync op, but returns Task<SResult<int>>
+```
+
 
 ## Best Practices
 
