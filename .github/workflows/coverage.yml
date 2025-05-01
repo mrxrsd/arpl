@@ -1,4 +1,4 @@
-name: Build
+name: Coverage
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  coverage:
     runs-on: ubuntu-latest
     
     steps:
@@ -23,6 +23,11 @@ jobs:
     - name: Install dependencies
       working-directory: ./arpl
       run: dotnet restore
-    - name: Build
+    - name: Test with coverage
       working-directory: ./arpl
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true

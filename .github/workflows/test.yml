@@ -1,4 +1,4 @@
-name: Build
+name: Test
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     
     steps:
@@ -23,6 +23,6 @@ jobs:
     - name: Install dependencies
       working-directory: ./arpl
       run: dotnet restore
-    - name: Build
+    - name: Test
       working-directory: ./arpl
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet test --no-restore --verbosity normal
