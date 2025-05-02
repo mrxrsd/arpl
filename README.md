@@ -56,6 +56,8 @@ A lightweight C# library providing robust discriminated unions for error handlin
   - [Traverse & TraverseAsync](#traverse--traverseasync)
   - [Try & TryAsync](#try--tryasync)
   - [Apply & ApplyAsync](#apply--applyasync)
+  - [Do & DoAsync](#do--doasync)
+  - [Transform & TransformAsync](#transform--transformasync)
   - [Mixing Sync and Async Methods](#mixing-sync-and-async-methods)
 - [Best Practices](#best-practices)
   - [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
@@ -609,11 +611,66 @@ var handled = either.Apply(
     content => Either<string, string>.Right($"Content: {content}"));
 ```
 
+### Do & DoAsync
+
+The `Do` and `DoAsync` methods allow you to perform actions on the monad while ensuring it remains a monad. Unlike `Map`, `Do` requires you to return the same monad type. This is particularly useful when you want to perform actions that should happen regardless of success or error state.
+
+```csharp
+// Using Do with Either - logging regardless of state
+var result = Either<Error, int>.Right(42)
+    .Do(either => {
+        var state = either.IsRight ? "success" : "error";
+        _metrics.TrackOperation($"process_number_{state}");
+        return either;
+    })
+    .Map(x => x * 2);
+
+// Using DoAsync with SResult - updating cache regardless of result
+var asyncResult = await GetUserAsync(id)
+    .DoAsync(async result => {
+        // Update cache even if the operation failed
+        await _cache.SetAsync($"user_{id}_last_access", DateTime.UtcNow);
+        return result;
+    })
+    .Map(user => user.Name);
+```
+
+### Transform & TransformAsync
+
+The `Transform` and `TransformAsync` methods are powerful tools that allow you to access both success and error values of a monad and transform them into any type. Unlike `Map` and `Bind` which only work with the success value, `Transform` gives you access to the entire monad.
+
+```csharp
+// Using Transform with Either
+var either = Either<string, int>.Right(42);
+var message = either.Transform(e => 
+    e.IsRight ? $"Got number: {e.RightValue}" : $"Got error: {e.LeftValue}");
+
+// Using TransformAsync with SResult
+var result = await GetOrderAsync(id)
+    .TransformAsync(async order => {
+        if (order.IsSuccess)
+        {
+            var details = await _detailsService.GetDetailsAsync(order.SuccessValue);
+            return new OrderViewModel(order.SuccessValue, details);
+        }
+        return new OrderViewModel(error: order.ErrorValue.Message);
+    });
+
+// Transform is especially useful for final transformations in a chain
+var displayText = await ProcessDataAsync()
+    .Map(data => data.Value)
+    .Bind(ValidateData)
+    .Transform(result => result.IsSuccess
+        ? $"Success: {result.SuccessValue}"
+        : $"Failed: {result.ErrorValue.Message}");
+```
+
+> 🕷️ As Uncle Ben said: "With great power comes great responsibility." Transform gives you complete access to the monad's object, breaking away from the usual functional constraints of Map and Bind. Use it wisely, preferably at the end of your chains when you need to make final transformations or present data to external systems.
+
 ### Mixing Sync and Async Methods
 
 ARPL provides seamless integration between synchronous and asynchronous operations in your functional chains.
 
-> **Note**: Once your chain includes an async operation (like `BindAsync` or `MapAsync`), all subsequent operations become awaitable. This means they will return `Task<T>`, even if the operations themselves are synchronous. ARPL handles this transition automatically, allowing you to write clean code without worrying about async/sync conversions.
 
 ```csharp
 // Start with async operation
@@ -629,6 +686,7 @@ var syncResult = Success("test")           // Returns SResult<string>
     .Map(str => str.Length);             // Sync op, but returns Task<SResult<int>>
 ```
 
+> **Note**: Once your chain includes an async operation (like `BindAsync` or `MapAsync`), all subsequent operations become awaitable. This means they will return `Task<T>`, even if the operations themselves are synchronous. ARPL handles this transition automatically, allowing you to write clean code without worrying about async/sync conversions.
 
 ## Best Practices
 
