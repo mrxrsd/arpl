@@ -38,6 +38,38 @@ namespace Arpl.Core
             var selfValue = await self;
             return await selfValue.DoAsync(func);
         }
+
+        /// <summary>
+        /// Transforms a Task of Either into any type using a function that receives the Either instance.
+        /// Unlike Map and Bind which work only with the Right value, Transform can access both Left and Right values.
+        /// </summary>
+        /// <typeparam name="L">The left type.</typeparam>
+        /// <typeparam name="R">The right type.</typeparam>
+        /// <typeparam name="T">The type to transform to.</typeparam>
+        /// <param name="self">The Task of Either to transform.</param>
+        /// <param name="func">The function to execute, which receives the Either instance and returns a value of type T.</param>
+        /// <returns>A Task containing the transformed value of type T.</returns>
+        public static async Task<T> Transform<L, R, T>(this Task<Either<L, R>> self, Func<Either<L, R>, T> func)
+        {
+            var selfValue = await self;
+            return selfValue.Transform(func);
+        }
+
+        /// <summary>
+        /// Asynchronously transforms a Task of Either into any type using a function that receives the Either instance.
+        /// Unlike Map and Bind which work only with the Right value, Transform can access both Left and Right values.
+        /// </summary>
+        /// <typeparam name="L">The left type.</typeparam>
+        /// <typeparam name="R">The right type.</typeparam>
+        /// <typeparam name="T">The type to transform to.</typeparam>
+        /// <param name="self">The Task of Either to transform.</param>
+        /// <param name="func">The async function to execute, which receives the Either instance and returns a Task of T.</param>
+        /// <returns>A Task containing the transformed value of type T.</returns>
+        public static async Task<T> TransformAsync<L, R, T>(this Task<Either<L, R>> self, Func<Either<L, R>, Task<T>> func)
+        {
+            var selfValue = await self;
+            return await selfValue.TransformAsync(func);
+        }
      
         /// <summary>
         /// Binds a function that returns an Either to a Task of Either.

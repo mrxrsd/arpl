@@ -1,5 +1,6 @@
 using Xunit;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Arpl.Core;
 
 namespace Arpl.Tests.Core
@@ -151,6 +152,80 @@ namespace Arpl.Tests.Core
             Assert.Equal(new[] { "First", "Second", "Third" }, order);
             Assert.True(finalResult.IsSuccess);
             Assert.Equal(84, finalResult.SuccessValue);
+        }
+
+        [Fact]
+        public void Transform_WithSuccess_TransformsToString()
+        {
+            // Arrange
+            var result = SResult<int>.Success(42);
+
+            // Act
+            var transformed = result.Transform(r => r.IsSuccess ? $"Success({r.SuccessValue})" : $"Error({r.ErrorValue})");
+
+            // Assert
+            Assert.Equal("Success(42)", transformed);
+        }
+
+        [Fact]
+        public void Transform_WithError_TransformsToString()
+        {
+            // Arrange
+            var error = Errors.New("error");
+            var result = SResult<int>.Error(error);
+
+            // Act
+            var transformed = result.Transform(r => r.IsSuccess ? $"Success({r.SuccessValue})" : $"Error({r.ErrorValue.Message})");
+
+            // Assert
+            Assert.Equal("Error(error)", transformed);
+        }
+
+        [Fact]
+        public void Transform_WithSuccess_TransformsToCustomType()
+        {
+            // Arrange
+            var result = SResult<int>.Success(42);
+
+            // Act
+            var transformed = result.Transform(r => new { IsOk = r.IsSuccess, Value = r.IsSuccess ? r.SuccessValue : 0 });
+
+            // Assert
+            Assert.True(transformed.IsOk);
+            Assert.Equal(42, transformed.Value);
+        }
+
+        [Fact]
+        public async Task TransformAsync_WithSuccess_TransformsToString()
+        {
+            // Arrange
+            var result = SResult<int>.Success(42);
+
+            // Act
+            var transformed = await result.TransformAsync(async r => {
+                await Task.Delay(1); // Simulate async work
+                return r.IsSuccess ? $"Success({r.SuccessValue})" : $"Error({r.ErrorValue})";
+            });
+
+            // Assert
+            Assert.Equal("Success(42)", transformed);
+        }
+
+        [Fact]
+        public async Task TransformAsync_WithError_TransformsToString()
+        {
+            // Arrange
+            var error = Errors.New("error");
+            var result = SResult<int>.Error(error);
+
+            // Act
+            var transformed = await result.TransformAsync(async r => {
+                await Task.Delay(1); // Simulate async work
+                return r.IsSuccess ? $"Success({r.SuccessValue})" : $"Error({r.ErrorValue.Message})";
+            });
+
+            // Assert
+            Assert.Equal("Error(error)", transformed);
         }
 
         [Fact(DisplayName = "Match - When SResult is Success - Should execute success function")]

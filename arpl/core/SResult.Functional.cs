@@ -22,9 +22,33 @@ namespace Arpl.Core
         /// </summary>
         /// <param name="func">The async function to execute, which receives and returns an SResult instance.</param>
         /// <returns>A task containing the SResult instance returned by the function.</returns>
-        public Task<SResult<R>> DoAsync(Func<SResult<R>, Task<SResult<R>>> func)
+        public async Task<SResult<R>> DoAsync(Func<SResult<R>, Task<SResult<R>>> func)
+        {
+            return await func(this);
+        }
+
+        /// <summary>
+        /// Transforms the SResult instance into any type using a function that receives the entire SResult instance.
+        /// Unlike Map and Bind which work only with the Success value, Transform can access both Success and Error values.
+        /// </summary>
+        /// <typeparam name="T">The type to transform to.</typeparam>
+        /// <param name="func">The function to execute, which receives the SResult instance and returns a value of type T.</param>
+        /// <returns>The transformed value of type T.</returns>
+        public T Transform<T>(Func<SResult<R>, T> func)
         {
             return func(this);
+        }
+
+        /// <summary>
+        /// Asynchronously transforms the SResult instance into any type using a function that receives the entire SResult instance.
+        /// Unlike Map and Bind which work only with the Success value, Transform can access both Success and Error values.
+        /// </summary>
+        /// <typeparam name="T">The type to transform to.</typeparam>
+        /// <param name="func">The async function to execute, which receives the SResult instance and returns a Task of T.</param>
+        /// <returns>A Task containing the transformed value of type T.</returns>
+        public async Task<T> TransformAsync<T>(Func<SResult<R>, Task<T>> func)
+        {
+            return await func(this);
         }
 
         /// <summary>

@@ -50,6 +50,62 @@ namespace Arpl.Tests.Core
             Assert.Equal(42, result.SuccessValue);
         }
 
+        [Fact]
+        public async Task Transform_OnTaskOfSResult_TransformsToString()
+        {
+            // Arrange
+            var task = Task.FromResult(SResult<int>.Success(42));
+
+            // Act
+            var result = await task.Transform(r => r.IsSuccess ? $"Success({r.SuccessValue})" : $"Error({r.ErrorValue.Message})");
+
+            // Assert
+            Assert.Equal("Success(42)", result);
+        }
+
+        [Fact]
+        public async Task TransformAsync_OnTaskOfSResult_TransformsToString()
+        {
+            // Arrange
+            var task = Task.FromResult(SResult<int>.Success(42));
+
+            // Act
+            var result = await task.TransformAsync(async r => {
+                await Task.Delay(1); // Simulate async work
+                return r.IsSuccess ? $"Success({r.SuccessValue})" : $"Error({r.ErrorValue.Message})";
+            });
+
+            // Assert
+            Assert.Equal("Success(42)", result);
+        }
+
+        [Fact]
+        public async Task Transform_ChainedWithMap_ExecutesInOrder()
+        {
+            // Arrange
+            var task = Task.FromResult(SResult<int>.Success(42));
+            var order = new List<string>();
+
+            // Act
+            var result = await task
+                .Do(r => {
+                    order.Add("First");
+                    return r;
+                })
+                .Map(x => {
+                    order.Add("Second");
+                    return x * 2;
+                })
+                .Transform(r => {
+                    order.Add("Third");
+                    return r.SuccessValue;
+                });
+
+            // Assert
+            Assert.Equal(new[] { "First", "Second", "Third" }, order);
+            Assert.Equal(84, result);
+        }
+
         [Fact(DisplayName = "Sequence - When all are Success - Returns Success with all values")]
         public void Sequence_WhenAllSuccess_ReturnsSuccessWithAllValues()
         {

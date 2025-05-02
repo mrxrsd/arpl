@@ -1,4 +1,6 @@
 using Xunit;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using Arpl.Core;
 
 namespace Arpl.Tests.Core
@@ -148,6 +150,78 @@ namespace Arpl.Tests.Core
             Assert.Equal(new[] { "First", "Second", "Third" }, order);
             Assert.True(result.IsRight);
             Assert.Equal(84, result.RightValue);
+        }
+
+        [Fact]
+        public void Transform_WithRight_TransformsToString()
+        {
+            // Arrange
+            var either = Either<string, int>.Right(42);
+
+            // Act
+            var result = either.Transform(e => e.IsRight ? $"Right({e.RightValue})" : $"Left({e.LeftValue})");
+
+            // Assert
+            Assert.Equal("Right(42)", result);
+        }
+
+        [Fact]
+        public void Transform_WithLeft_TransformsToString()
+        {
+            // Arrange
+            var either = Either<string, int>.Left("error");
+
+            // Act
+            var result = either.Transform(e => e.IsRight ? $"Right({e.RightValue})" : $"Left({e.LeftValue})");
+
+            // Assert
+            Assert.Equal("Left(error)", result);
+        }
+
+        [Fact]
+        public void Transform_WithRight_TransformsToCustomType()
+        {
+            // Arrange
+            var either = Either<string, int>.Right(42);
+
+            // Act
+            var result = either.Transform(e => new { IsOk = e.IsRight, Value = e.IsRight ? e.RightValue : 0 });
+
+            // Assert
+            Assert.True(result.IsOk);
+            Assert.Equal(42, result.Value);
+        }
+
+        [Fact]
+        public async Task TransformAsync_WithRight_TransformsToString()
+        {
+            // Arrange
+            var either = Either<string, int>.Right(42);
+
+            // Act
+            var result = await either.TransformAsync(async e => {
+                await Task.Delay(1); // Simulate async work
+                return e.IsRight ? $"Right({e.RightValue})" : $"Left({e.LeftValue})";
+            });
+
+            // Assert
+            Assert.Equal("Right(42)", result);
+        }
+
+        [Fact]
+        public async Task TransformAsync_WithLeft_TransformsToString()
+        {
+            // Arrange
+            var either = Either<string, int>.Left("error");
+
+            // Act
+            var result = await either.TransformAsync(async e => {
+                await Task.Delay(1); // Simulate async work
+                return e.IsRight ? $"Right({e.RightValue})" : $"Left({e.LeftValue})";
+            });
+
+            // Assert
+            Assert.Equal("Left(error)", result);
         }
 
         [Fact(DisplayName = "Match - When Either is Left - Should execute left function")]

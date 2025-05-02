@@ -22,9 +22,33 @@ namespace Arpl.Core
         /// </summary>
         /// <param name="func">The async function to execute, which receives and returns an Either instance.</param>
         /// <returns>A task containing the Either instance returned by the function.</returns>
-        public Task<Either<L, R>> DoAsync(Func<Either<L, R>, Task<Either<L, R>>> func)
+        public async Task<Either<L, R>> DoAsync(Func<Either<L, R>, Task<Either<L, R>>> func)
+        {
+            return await func(this);
+        }
+
+        /// <summary>
+        /// Transforms the Either instance into any type using a function that receives the entire Either instance.
+        /// Unlike Map and Bind which work only with the Right value, Transform can access both Left and Right values.
+        /// </summary>
+        /// <typeparam name="T">The type to transform to.</typeparam>
+        /// <param name="func">The function to execute, which receives the Either instance and returns a value of type T.</param>
+        /// <returns>The transformed value of type T.</returns>
+        public T Transform<T>(Func<Either<L, R>, T> func)
         {
             return func(this);
+        }
+
+        /// <summary>
+        /// Asynchronously transforms the Either instance into any type using a function that receives the entire Either instance.
+        /// Unlike Map and Bind which work only with the Right value, Transform can access both Left and Right values.
+        /// </summary>
+        /// <typeparam name="T">The type to transform to.</typeparam>
+        /// <param name="func">The async function to execute, which receives the Either instance and returns a Task of T.</param>
+        /// <returns>A Task containing the transformed value of type T.</returns>
+        public async Task<T> TransformAsync<T>(Func<Either<L, R>, Task<T>> func)
+        {
+            return await func(this);
         }
 
         /// <summary>

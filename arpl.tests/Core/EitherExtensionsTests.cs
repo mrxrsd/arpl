@@ -50,6 +50,62 @@ namespace Arpl.Tests.Core
             Assert.Equal(42, result.RightValue);
         }
 
+        [Fact]
+        public async Task Transform_OnTaskOfEither_TransformsToString()
+        {
+            // Arrange
+            var task = Task.FromResult(Either<string, int>.Right(42));
+
+            // Act
+            var result = await task.Transform(e => e.IsRight ? $"Right({e.RightValue})" : $"Left({e.LeftValue})");
+
+            // Assert
+            Assert.Equal("Right(42)", result);
+        }
+
+        [Fact]
+        public async Task TransformAsync_OnTaskOfEither_TransformsToString()
+        {
+            // Arrange
+            var task = Task.FromResult(Either<string, int>.Right(42));
+
+            // Act
+            var result = await task.TransformAsync(async e => {
+                await Task.Delay(1); // Simulate async work
+                return e.IsRight ? $"Right({e.RightValue})" : $"Left({e.LeftValue})";
+            });
+
+            // Assert
+            Assert.Equal("Right(42)", result);
+        }
+
+        [Fact]
+        public async Task Transform_ChainedWithMap_ExecutesInOrder()
+        {
+            // Arrange
+            var task = Task.FromResult(Either<string, int>.Right(42));
+            var order = new List<string>();
+
+            // Act
+            var result = await task
+                .Do(e => {
+                    order.Add("First");
+                    return e;
+                })
+                .Map(x => {
+                    order.Add("Second");
+                    return x * 2;
+                })
+                .Transform(e => {
+                    order.Add("Third");
+                    return e.RightValue;
+                });
+
+            // Assert
+            Assert.Equal(new[] { "First", "Second", "Third" }, order);
+            Assert.Equal(84, result);
+        }
+
         [Fact(DisplayName = "Sequence - When all are Right - Returns Right with all values")]
         public void Sequence_WhenAllRight_ReturnsRightWithAllValues()
         {
