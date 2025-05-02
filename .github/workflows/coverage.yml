@@ -9,7 +9,7 @@ on:
 
 jobs:
   coverage:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     
     steps:
     - uses: actions/checkout@v3
@@ -20,14 +20,15 @@ jobs:
           6.0.x
           7.0.x
           8.0.x
+    - name: List files
+      run: ls -R          
     - name: Install dependencies
-      working-directory: ./arpl
       run: dotnet restore
+    - name: Build
+      run: dotnet build -c Release --no-restore
     - name: Test with coverage
-      working-directory: ./arpl
-      run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test --verbosity normal --collect:"XPlat Code Coverage"
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        fail_ci_if_error: true

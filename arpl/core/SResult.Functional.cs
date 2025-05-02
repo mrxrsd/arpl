@@ -5,6 +5,27 @@ namespace Arpl.Core
 {
     public abstract partial class SResult<R>
     {
+        /// <summary>
+        /// Executes a function that receives and returns an SResult instance.
+        /// This is useful for side effects like logging or debugging while maintaining the SResult chain.
+        /// </summary>
+        /// <param name="func">The function to execute, which receives and returns an SResult instance.</param>
+        /// <returns>The SResult instance returned by the function.</returns>
+        public SResult<R> Do(Func<SResult<R>, SResult<R>> func)
+        {
+            return func(this);
+        }
+
+        /// <summary>
+        /// Asynchronously executes a function that receives and returns an SResult instance.
+        /// This is useful for side effects like logging or debugging while maintaining the SResult chain.
+        /// </summary>
+        /// <param name="func">The async function to execute, which receives and returns an SResult instance.</param>
+        /// <returns>A task containing the SResult instance returned by the function.</returns>
+        public Task<SResult<R>> DoAsync(Func<SResult<R>, Task<SResult<R>>> func)
+        {
+            return func(this);
+        }
 
         /// <summary>
         /// Executes a function that returns an SResult and handles any exceptions that occur.

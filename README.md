@@ -1,12 +1,23 @@
-# ARPL (Advanced Result Pattern Library)
+<div align="center">
+
+<img src=".github/img/logo.png" alt="drawing" width="700px"/></br>
+
+</div>
+
 
 [![NuGet](https://img.shields.io/nuget/v/ARPL.svg)](https://www.nuget.org/packages/ARPL)
 [![Downloads](https://img.shields.io/nuget/dt/ARPL.svg)](https://www.nuget.org/packages/ARPL)
+[![Build](https://github.com/mrxrsd/arpl/actions/workflows/build.yml/badge.svg)](https://github.com/mrxrsd/arpl/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/mrxrsd/arpl/graph/badge.svg?token=L3TRITTYQ2)](https://codecov.io/gh/mrxrsd/arpl)
 [![License](https://img.shields.io/github/license/mrxrsd/arpl.svg)](https://github.com/mrxrsd/arpl/blob/main/LICENSE)
 
-A lightweight C# library providing robust discriminated unions for error handling and functional programming patterns. ARPL offers two main types: `Either<L,R>` for generic discriminated unions and `SResult<R>` for specialized success/error handling.
 
 > If you find ARPL helpful, please give it a star ⭐! It helps the project grow and improve.
+
+
+# ARPL
+
+A lightweight C# library providing robust discriminated unions for error handling and functional programming patterns. ARPL offers two main types: `Either<L,R>` for generic discriminated unions and `SResult<R>` for specialized success/error handling.
 
 ## Why ARPL? 🤔
 

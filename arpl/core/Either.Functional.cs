@@ -6,6 +6,28 @@ namespace Arpl.Core
     public abstract partial class Either<L, R>
     {
         /// <summary>
+        /// Executes a function that receives and returns an Either instance.
+        /// This is useful for side effects like logging or debugging while maintaining the Either chain.
+        /// </summary>
+        /// <param name="func">The function to execute, which receives and returns an Either instance.</param>
+        /// <returns>The Either instance returned by the function.</returns>
+        public Either<L, R> Do(Func<Either<L, R>, Either<L, R>> func)
+        {
+            return func(this);
+        }
+
+        /// <summary>
+        /// Asynchronously executes a function that receives and returns an Either instance.
+        /// This is useful for side effects like logging or debugging while maintaining the Either chain.
+        /// </summary>
+        /// <param name="func">The async function to execute, which receives and returns an Either instance.</param>
+        /// <returns>A task containing the Either instance returned by the function.</returns>
+        public Task<Either<L, R>> DoAsync(Func<Either<L, R>, Task<Either<L, R>>> func)
+        {
+            return func(this);
+        }
+
+        /// <summary>
         /// Matches the Either instance and transforms it to a value of type T.
         /// </summary>
         /// <typeparam name="T">The type of the result.</typeparam>

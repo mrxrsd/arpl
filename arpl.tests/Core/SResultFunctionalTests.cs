@@ -241,7 +241,7 @@ namespace Arpl.Tests.Core
                 .MapAsync(async x =>
                 {
                     await Task.Delay(1);
-                    return x.ToString("F1");
+                    return x.ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
                 })  // async map: 78.0 -> "78.0"
                 .Match(
                     fail => SResult<string>.Error(fail),
@@ -249,7 +249,7 @@ namespace Arpl.Tests.Core
             
             // Assert
             Assert.True(final.IsSuccess);
-            Assert.Equal("Success: 78,0", final.SuccessValue);
+            Assert.Equal("Success: 78.0", final.SuccessValue);
         }
 
         [Fact(DisplayName = "Complex error handling - Mix of sync and async operations")]
@@ -307,11 +307,11 @@ namespace Arpl.Tests.Core
                 })  // async map: calculate ratio
                 .Apply(
                     fail => SResult<string>.Error(fail),
-                    success => SResult<string>.Success($"Ratio: {success:F1}"));
+                    success => SResult<string>.Success($"Ratio: {success.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)}"));
             
             // Assert
             Assert.True(final.IsSuccess);
-            Assert.Equal("Ratio: 2,0", final.SuccessValue);
+            Assert.Equal("Ratio: 2.0", final.SuccessValue);
         }
 
         [Fact(DisplayName = "Try - When function succeeds - Should return Success")]
