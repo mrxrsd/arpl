@@ -7,6 +7,49 @@ namespace Arpl.Tests.Core
 {
     public class SResultExtensionsTests
     {
+        [Fact]
+        public async Task Do_OnTaskOfSResult_ExecutesFunction()
+        {
+            // Arrange
+            var task = Task.FromResult(SResult<int>.Success(42));
+            var executed = false;
+
+            // Act
+            var result = await task.Do(r => {
+                executed = true;
+                Assert.True(r.IsSuccess);
+                Assert.Equal(42, r.SuccessValue);
+                return r;
+            });
+
+            // Assert
+            Assert.True(executed);
+            Assert.True(result.IsSuccess);
+            Assert.Equal(42, result.SuccessValue);
+        }
+
+        [Fact]
+        public async Task DoAsync_OnTaskOfSResult_ExecutesFunction()
+        {
+            // Arrange
+            var task = Task.FromResult(SResult<int>.Success(42));
+            var executed = false;
+
+            // Act
+            var result = await task.DoAsync(async r => {
+                executed = true;
+                Assert.True(r.IsSuccess);
+                Assert.Equal(42, r.SuccessValue);
+                await Task.Delay(1); // Simulate async work
+                return r;
+            });
+
+            // Assert
+            Assert.True(executed);
+            Assert.True(result.IsSuccess);
+            Assert.Equal(42, result.SuccessValue);
+        }
+
         [Fact(DisplayName = "Sequence - When all are Success - Returns Success with all values")]
         public void Sequence_WhenAllSuccess_ReturnsSuccessWithAllValues()
         {

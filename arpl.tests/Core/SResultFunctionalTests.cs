@@ -6,6 +6,153 @@ namespace Arpl.Tests.Core
 {
     public class SResultFunctionalTests
     {
+        [Fact]
+        public void Do_WithSuccess_ExecutesFunction()
+        {
+            // Arrange
+            var result = SResult<int>.Success(42);
+            var executed = false;
+
+            // Act
+            var finalResult = result.Do(r => {
+                executed = true;
+                Assert.True(r.IsSuccess);
+                Assert.Equal(42, r.SuccessValue);
+                return r;
+            });
+
+            // Assert
+            Assert.True(executed);
+            Assert.True(finalResult.IsSuccess);
+            Assert.Equal(42, finalResult.SuccessValue);
+        }
+
+        [Fact]
+        public void Do_WithError_ExecutesFunction()
+        {
+            // Arrange
+            var error = Errors.New("error");
+            var result = SResult<int>.Error(error);
+            var executed = false;
+
+            // Act
+            var finalResult = result.Do(r => {
+                executed = true;
+                Assert.True(r.IsFail);
+                Assert.Equal(error, r.ErrorValue);
+                return r;
+            });
+
+            // Assert
+            Assert.True(executed);
+            Assert.True(finalResult.IsFail);
+            Assert.Equal(error, finalResult.ErrorValue);
+        }
+
+        [Fact]
+        public async Task DoAsync_WithSuccess_ExecutesFunction()
+        {
+            // Arrange
+            var result = SResult<int>.Success(42);
+            var executed = false;
+
+            // Act
+            var finalResult = await result.DoAsync(async r => {
+                executed = true;
+                Assert.True(r.IsSuccess);
+                Assert.Equal(42, r.SuccessValue);
+                await Task.Delay(1); // Simulate async work
+                return r;
+            });
+
+            // Assert
+            Assert.True(executed);
+            Assert.True(finalResult.IsSuccess);
+            Assert.Equal(42, finalResult.SuccessValue);
+        }
+
+        [Fact]
+        public async Task DoAsync_WithError_ExecutesFunction()
+        {
+            // Arrange
+            var error = Errors.New("error");
+            var result = SResult<int>.Error(error);
+            var executed = false;
+
+            // Act
+            var finalResult = await result.DoAsync(async r => {
+                executed = true;
+                Assert.True(r.IsFail);
+                Assert.Equal(error, r.ErrorValue);
+                await Task.Delay(1); // Simulate async work
+                return r;
+            });
+
+            // Assert
+            Assert.True(executed);
+            Assert.True(finalResult.IsFail);
+            Assert.Equal(error, finalResult.ErrorValue);
+        }
+
+        [Fact]
+        public void Do_ChainedWithMap_ExecutesInOrder()
+        {
+            // Arrange
+            var result = SResult<int>.Success(42);
+            var order = new List<string>();
+
+            // Act
+            var finalResult = result
+                .Do(r => {
+                    order.Add("First");
+                    return r;
+                })
+                .Map(x => {
+                    order.Add("Second");
+                    return x * 2;
+                })
+                .Do(r => {
+                    order.Add("Third");
+                    return r;
+                });
+
+            // Assert
+            Assert.Equal(new[] { "First", "Second", "Third" }, order);
+            Assert.True(finalResult.IsSuccess);
+            Assert.Equal(84, finalResult.SuccessValue);
+        }
+
+        [Fact]
+        public async Task DoAsync_ChainedWithMapAsync_ExecutesInOrder()
+        {
+            // Arrange
+            var result = SResult<int>.Success(42);
+            var order = new List<string>();
+
+            // Act
+            var finalResult = await result
+                .DoAsync(async r => {
+                    order.Add("First");
+                    await Task.Delay(1);
+                    return r;
+                })
+                .MapAsync(async x => {
+                    order.Add("Second");
+                    await Task.Delay(1);
+                    return x * 2;
+                })
+                .DoAsync(async r => {
+                    order.Add("Third");
+                    await Task.Delay(1);
+                    return r;
+                });
+
+            // Assert
+            Assert.Equal(new[] { "First", "Second", "Third" }, order);
+            Assert.True(finalResult.IsSuccess);
+            Assert.Equal(84, finalResult.SuccessValue);
+        }
+
         [Fact(DisplayName = "Match - When SResult is Success - Should execute success function")]
         public void Match_WhenSuccess_ShouldExecuteSuccessFunction()
         {

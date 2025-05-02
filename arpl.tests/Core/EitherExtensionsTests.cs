@@ -7,6 +7,49 @@ namespace Arpl.Tests.Core
 {
     public class EitherExtensionsTests
     {
+        [Fact]
+        public async Task Do_OnTaskOfEither_ExecutesFunction()
+        {
+            // Arrange
+            var task = Task.FromResult(Either<string, int>.Right(42));
+            var executed = false;
+
+            // Act
+            var result = await task.Do(e => {
+                executed = true;
+                Assert.True(e.IsRight);
+                Assert.Equal(42, e.RightValue);
+                return e;
+            });
+
+            // Assert
+            Assert.True(executed);
+            Assert.True(result.IsRight);
+            Assert.Equal(42, result.RightValue);
+        }
+
+        [Fact]
+        public async Task DoAsync_OnTaskOfEither_ExecutesFunction()
+        {
+            // Arrange
+            var task = Task.FromResult(Either<string, int>.Right(42));
+            var executed = false;
+
+            // Act
+            var result = await task.DoAsync(async e => {
+                executed = true;
+                Assert.True(e.IsRight);
+                Assert.Equal(42, e.RightValue);
+                await Task.Delay(1); // Simulate async work
+                return e;
+            });
+
+            // Assert
+            Assert.True(executed);
+            Assert.True(result.IsRight);
+            Assert.Equal(42, result.RightValue);
+        }
+
         [Fact(DisplayName = "Sequence - When all are Right - Returns Right with all values")]
         public void Sequence_WhenAllRight_ReturnsRightWithAllValues()
         {

@@ -5,6 +5,151 @@ namespace Arpl.Tests.Core
 {
     public class EitherFunctionalTests
     {
+        [Fact]
+        public void Do_WithRight_ExecutesFunction()
+        {
+            // Arrange
+            var either = Either<string, int>.Right(42);
+            var executed = false;
+
+            // Act
+            var result = either.Do(e => {
+                executed = true;
+                Assert.True(e.IsRight);
+                Assert.Equal(42, e.RightValue);
+                return e;
+            });
+
+            // Assert
+            Assert.True(executed);
+            Assert.True(result.IsRight);
+            Assert.Equal(42, result.RightValue);
+        }
+
+        [Fact]
+        public void Do_WithLeft_ExecutesFunction()
+        {
+            // Arrange
+            var either = Either<string, int>.Left("error");
+            var executed = false;
+
+            // Act
+            var result = either.Do(e => {
+                executed = true;
+                Assert.True(e.IsLeft);
+                Assert.Equal("error", e.LeftValue);
+                return e;
+            });
+
+            // Assert
+            Assert.True(executed);
+            Assert.True(result.IsLeft);
+            Assert.Equal("error", result.LeftValue);
+        }
+
+        [Fact]
+        public async Task DoAsync_WithRight_ExecutesFunction()
+        {
+            // Arrange
+            var either = Either<string, int>.Right(42);
+            var executed = false;
+
+            // Act
+            var result = await either.DoAsync(async e => {
+                executed = true;
+                Assert.True(e.IsRight);
+                Assert.Equal(42, e.RightValue);
+                await Task.Delay(1); // Simulate async work
+                return e;
+            });
+
+            // Assert
+            Assert.True(executed);
+            Assert.True(result.IsRight);
+            Assert.Equal(42, result.RightValue);
+        }
+
+        [Fact]
+        public async Task DoAsync_WithLeft_ExecutesFunction()
+        {
+            // Arrange
+            var either = Either<string, int>.Left("error");
+            var executed = false;
+
+            // Act
+            var result = await either.DoAsync(async e => {
+                executed = true;
+                Assert.True(e.IsLeft);
+                Assert.Equal("error", e.LeftValue);
+                await Task.Delay(1); // Simulate async work
+                return e;
+            });
+
+            // Assert
+            Assert.True(executed);
+            Assert.True(result.IsLeft);
+            Assert.Equal("error", result.LeftValue);
+        }
+
+        [Fact]
+        public void Do_ChainedWithMap_ExecutesInOrder()
+        {
+            // Arrange
+            var either = Either<string, int>.Right(42);
+            var order = new List<string>();
+
+            // Act
+            var result = either
+                .Do(e => {
+                    order.Add("First");
+                    return e;
+                })
+                .Map(x => {
+                    order.Add("Second");
+                    return x * 2;
+                })
+                .Do(e => {
+                    order.Add("Third");
+                    return e;
+                });
+
+            // Assert
+            Assert.Equal(new[] { "First", "Second", "Third" }, order);
+            Assert.True(result.IsRight);
+            Assert.Equal(84, result.RightValue);
+        }
+
+        [Fact]
+        public async Task DoAsync_ChainedWithMapAsync_ExecutesInOrder()
+        {
+            // Arrange
+            var either = Either<string, int>.Right(42);
+            var order = new List<string>();
+
+            // Act
+            var result = await either
+                .DoAsync(async e => {
+                    order.Add("First");
+                    await Task.Delay(1);
+                    return e;
+                })
+                .MapAsync(async x => {
+                    order.Add("Second");
+                    await Task.Delay(1);
+                    return x * 2;
+                })
+                .DoAsync(async e => {
+                    order.Add("Third");
+                    await Task.Delay(1);
+                    return e;
+                });
+
+            // Assert
+            Assert.Equal(new[] { "First", "Second", "Third" }, order);
+            Assert.True(result.IsRight);
+            Assert.Equal(84, result.RightValue);
+        }
+
         [Fact(DisplayName = "Match - When Either is Left - Should execute left function")]
         public void Match_WhenLeft_ShouldExecuteLeftFunction()
         {
