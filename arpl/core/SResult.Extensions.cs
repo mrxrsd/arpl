@@ -9,6 +9,34 @@ namespace Arpl.Core
     /// </summary>
     public static class SResultExtensions
     {
+        /// <summary>
+        /// Executes a function that receives and returns an SResult instance on a Task of SResult.
+        /// This is useful for side effects like logging or debugging while maintaining the SResult chain.
+        /// </summary>
+        /// <typeparam name="R">The result type.</typeparam>
+        /// <param name="self">The Task of SResult to operate on.</param>
+        /// <param name="func">The function to execute, which receives and returns an SResult instance.</param>
+        /// <returns>A Task containing the SResult instance returned by the function.</returns>
+        public static async Task<SResult<R>> Do<R>(this Task<SResult<R>> self, Func<SResult<R>, SResult<R>> func)
+        {
+            var selfValue = await self;
+            return selfValue.Do(func);
+        }
+
+        /// <summary>
+        /// Asynchronously executes a function that receives and returns an SResult instance on a Task of SResult.
+        /// This is useful for side effects like logging or debugging while maintaining the SResult chain.
+        /// </summary>
+        /// <typeparam name="R">The result type.</typeparam>
+        /// <param name="self">The Task of SResult to operate on.</param>
+        /// <param name="func">The async function to execute, which receives and returns an SResult instance.</param>
+        /// <returns>A Task containing the SResult instance returned by the function.</returns>
+        public static async Task<SResult<R>> DoAsync<R>(this Task<SResult<R>> self, Func<SResult<R>, Task<SResult<R>>> func)
+        {
+            var selfValue = await self;
+            return await selfValue.DoAsync(func);
+        }
+
 
 
         /// <summary>

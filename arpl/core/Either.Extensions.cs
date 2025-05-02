@@ -9,6 +9,35 @@ namespace Arpl.Core
     /// </summary>
     public static class EitherExtensions
     {
+        /// <summary>
+        /// Executes a function that receives and returns an Either instance on a Task of Either.
+        /// This is useful for side effects like logging or debugging while maintaining the Either chain.
+        /// </summary>
+        /// <typeparam name="L">The left type.</typeparam>
+        /// <typeparam name="R">The right type.</typeparam>
+        /// <param name="self">The Task of Either to operate on.</param>
+        /// <param name="func">The function to execute, which receives and returns an Either instance.</param>
+        /// <returns>A Task containing the Either instance returned by the function.</returns>
+        public static async Task<Either<L, R>> Do<L, R>(this Task<Either<L, R>> self, Func<Either<L, R>, Either<L, R>> func)
+        {
+            var selfValue = await self;
+            return selfValue.Do(func);
+        }
+
+        /// <summary>
+        /// Asynchronously executes a function that receives and returns an Either instance on a Task of Either.
+        /// This is useful for side effects like logging or debugging while maintaining the Either chain.
+        /// </summary>
+        /// <typeparam name="L">The left type.</typeparam>
+        /// <typeparam name="R">The right type.</typeparam>
+        /// <param name="self">The Task of Either to operate on.</param>
+        /// <param name="func">The async function to execute, which receives and returns an Either instance.</param>
+        /// <returns>A Task containing the Either instance returned by the function.</returns>
+        public static async Task<Either<L, R>> DoAsync<L, R>(this Task<Either<L, R>> self, Func<Either<L, R>, Task<Either<L, R>>> func)
+        {
+            var selfValue = await self;
+            return await selfValue.DoAsync(func);
+        }
      
         /// <summary>
         /// Binds a function that returns an Either to a Task of Either.
