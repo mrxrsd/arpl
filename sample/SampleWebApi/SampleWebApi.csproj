@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\arpl.aspnetcore\Arpl.AspNetCore.csproj" />
     <ProjectReference Include="..\..\arpl\Arpl.csproj" />
   </ItemGroup>
 
