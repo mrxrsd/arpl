@@ -3,7 +3,8 @@
 # Parameters
 param(
     [string]$version = "1.0.0",
-    [string]$configuration = "Release"
+    [string]$configuration = "Release",
+    [string]$arplVersion = "1.0.0"
 )
 
 # Ensure we stop on any error
@@ -25,11 +26,11 @@ if (-not (Test-Path ".\artifacts")) {
 
 # Restore dependencies
 Write-Host "Restoring dependencies..."
-dotnet restore .\arpl.aspnetcore\Arpl.AspNetCore.csproj
+dotnet restore .\arpl.aspnetcore\Arpl.AspNetCore.csproj /p:ArplVersion=$arplVersion
 
 # Build project
 Write-Host "Building project..."
-dotnet build .\arpl.aspnetcore\Arpl.AspNetCore.csproj -c $configuration /p:Version=$version
+dotnet build .\arpl.aspnetcore\Arpl.AspNetCore.csproj -c $configuration /p:Version=$version /p:ArplVersion=$arplVersion
 
 # Create NuGet package
 Write-Host "Creating NuGet package..."
@@ -37,6 +38,7 @@ dotnet pack .\arpl.aspnetcore\Arpl.AspNetCore.csproj `
     -c $configuration `
     /p:Version=$version `
     /p:PackageVersion=$version `
+    /p:ArplVersion=$arplVersion `
     --no-build `
     --output .\artifacts
 
