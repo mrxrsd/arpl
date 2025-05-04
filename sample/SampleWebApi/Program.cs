@@ -1,3 +1,7 @@
+using Arpl.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
+using SampleWebApi.SampleApp.Domain.Errors;
+
 namespace SampleWebApi
 {
     public class Program
@@ -9,6 +13,19 @@ namespace SampleWebApi
             // Add services to the container.
             builder.Services.AddScoped<SampleWebApi.SampleApp.Domain.Model.IPersonRepository, SampleWebApi.SampleApp.Repositories.PersonRepository>();
             builder.Services.AddScoped<SampleWebApi.SampleApp.Application.PersonService>();
+
+
+            //Configure ARPL AspNetCore integration
+            ArplAspNetCore.Setup(options =>
+            {
+                // Custom error handling based on error type
+                options.ErrorHandler = error => error switch
+                {
+                    ValidateError ve => new BadRequestObjectResult(ve),
+                    NotFoundError nf => new NotFoundObjectResult(nf),
+                    _ => new ObjectResult(error) { StatusCode = StatusCodes.Status500InternalServerError }
+                };
+            });
 
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>

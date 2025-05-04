@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using SampleWebApi.Controllers.Dtos;
-using SampleWebApi.Controllers.Results;
 using SampleWebApi.SampleApp.Application;
 using SampleWebApi.SampleApp.Application.Dtos;
+using Arpl.AspNetCore.Extensions;
 
 namespace SampleWebApi.Controllers
 {
@@ -18,24 +17,21 @@ namespace SampleWebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<HttpResultDto<IEnumerable<PersonDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<PersonDto>>> GetAll()
         {
-            var result = await _personService.GetAllAsync();
-            return HttpResult.Handle(result);
+            return await _personService.GetAllAsync().ToActionResult();
         }
 
         [HttpGet("{id}")]
-        public async Task<HttpResultDto<PersonDto>> GetById(Guid id)
+        public async Task<ActionResult<PersonDto>> GetById(Guid id)
         {
-            var result = await _personService.GetByIdAsync(id);
-            return HttpResult.Handle(result);
+            return await _personService.GetByIdAsync(id).ToActionResult();
         }
 
         [HttpPost]
-        public async Task<HttpResultDto<PersonDto>> Create([FromBody] CreatePersonDto dto)
+        public async Task<ActionResult<PersonDto>> Create([FromBody] CreatePersonDto dto)
         {
-            var result = await _personService.CreateAsync(dto);
-            return HttpResult.Handle(result);
+            return await _personService.CreateAsync(dto).ToActionResult();
         }
     }
 }
