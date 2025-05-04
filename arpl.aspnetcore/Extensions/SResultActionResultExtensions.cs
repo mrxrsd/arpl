@@ -1,9 +1,7 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Arpl.Core;
 
-namespace Arpl.AspNetCore;
+namespace Arpl.AspNetCore.Extensions;
 
 /// <summary>
 /// Extension methods for converting SResult to ActionResult.
@@ -21,10 +19,10 @@ public static class SResultActionResultExtensions
 
         if (result.IsSuccess)
         {
-            return ActionResultFactory.SuccessHandler(result.SuccessValue);
+            return ArplAspNetCore.Converter.SuccessHandler(result.SuccessValue);
         }
 
-        return ActionResultFactory.ErrorHandler(result.ErrorValue);
+        return ArplAspNetCore.Converter.ErrorHandler(result.ErrorValue);
     }
 
     /// <summary>

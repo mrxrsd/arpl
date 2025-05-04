@@ -14,6 +14,7 @@ namespace SampleWebApi
             builder.Services.AddScoped<SampleWebApi.SampleApp.Domain.Model.IPersonRepository, SampleWebApi.SampleApp.Repositories.PersonRepository>();
             builder.Services.AddScoped<SampleWebApi.SampleApp.Application.PersonService>();
 
+
             //Configure ARPL AspNetCore integration
             ArplAspNetCore.Setup(options =>
             {

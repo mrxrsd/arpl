@@ -1,3 +1,4 @@
+using Arpl.AspNetCore.Converter;
 using Arpl.Core;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,8 @@ namespace Arpl.AspNetCore;
 /// </summary>
 public static class ArplAspNetCore
 {
+    public static ActionResultFactory Converter { get; } = new ActionResultFactory();
+
     
     /// <summary>
     /// Configures the ARPL ASP.NET Core integration.
@@ -18,11 +21,11 @@ public static class ArplAspNetCore
         var opts = new ArlAspNetCoreOptions();
         configure(opts);
 
-        if (opts?.ErrorHandler != null) ActionResultFactory.ErrorHandler = opts.ErrorHandler;
-        if (opts?.SuccessHandler != null) ActionResultFactory.SuccessHandler = opts.SuccessHandler;
+        if (opts?.SuccessHandler != null) Converter.SuccessHandler = opts.SuccessHandler;
+        if (opts?.ErrorHandler != null) Converter.ErrorHandler = opts.ErrorHandler;
+       
     }
-    
-    
+   
 }
 
 public class ArlAspNetCoreOptions

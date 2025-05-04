@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Arpl.AspNetCore;
 using SampleWebApi.SampleApp.Application;
 using SampleWebApi.SampleApp.Application.Dtos;
+using Arpl.AspNetCore.Extensions;
 
 namespace SampleWebApi.Controllers
 {
