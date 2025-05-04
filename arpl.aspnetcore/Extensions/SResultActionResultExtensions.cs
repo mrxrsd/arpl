@@ -28,7 +28,7 @@ public static class SResultActionResultExtensions
     /// <summary>
     /// Converts a Task of SResult to an ActionResult.
     /// </summary>
-    public static async Task<ActionResult> ToActionResultAsync<T>(this Task<SResult<T>> resultTask)
+    public static async Task<ActionResult> ToActionResult<T>(this Task<SResult<T>> resultTask)
     {
         var result = await resultTask;
         return result.ToActionResult();

@@ -19,19 +19,19 @@ namespace SampleWebApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PersonDto>>> GetAll()
         {
-            return await _personService.GetAllAsync().ToActionResultAsync();
+            return await _personService.GetAllAsync().ToActionResult();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<PersonDto>> GetById(Guid id)
         {
-            return await _personService.GetByIdAsync(id).ToActionResultAsync();
+            return await _personService.GetByIdAsync(id).ToActionResult();
         }
 
         [HttpPost]
         public async Task<ActionResult<PersonDto>> Create([FromBody] CreatePersonDto dto)
         {
-            return await _personService.CreateAsync(dto).ToActionResultAsync();
+            return await _personService.CreateAsync(dto).ToActionResult();
         }
     }
 }
