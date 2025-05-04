@@ -67,6 +67,10 @@ A lightweight C# library providing robust discriminated unions for error handlin
   - [API Endpoints](#api-endpoints)
   - [Example Request](#example-request)
 - [Benchmarking](#benchmarking)
+- [ASP.NET Core Integration](#aspnet-core-integration-)
+  - [Installation](#installation-1)
+  - [Basic Usage](#basic-usage-1)
+  - [Custom Configuration](#custom-configuration)
 - [Contributing](#contributing-)
 - [License](#license-)
 
@@ -808,6 +812,79 @@ ARPL combines the best of worlds:
 - Rich error handling like FluentResults/ErrorOr
 - Full functional programming support
 - Seamless async/await integration
+
+## ASP.NET Core Integration 🌐
+
+> **Note**: The ASP.NET Core integration package is currently in preview. API may change before the stable release.
+
+ARPL provides seamless integration with ASP.NET Core through the `ARPL.AspNetCore` package. This package allows you to easily convert `SResult<T>` to `ActionResult` with custom configuration options.
+
+### Installation
+
+```bash
+dotnet add package ARPL.AspNetCore --version 0.1.0
+```
+
+### Basic Usage
+
+The package provides extension methods to convert `SResult<T>` to `ActionResult`:
+
+```csharp
+public class UserController : ControllerBase
+{
+    [HttpGet("{id}")]
+    public async Task<ActionResult<User>> GetUser(int id)
+    {
+        var result = await _userService.GetUserById(id);
+        return result.ToActionResult();
+    }
+}
+```
+
+### Custom Configuration (Optional)
+
+By default, `ToActionResult()` will:
+- Return `200 OK` with the success value for successful results
+- Return `400 Bad Request` for expected errors (e.g., validation errors)
+- Return `500 Internal Server Error` for unexpected errors (e.g., exceptions)
+
+You can customize this behavior when you need specific HTTP status codes for your custom error types. This is particularly useful when dealing with domain-specific errors:
+
+```csharp
+
+public void ConfigureServices(IServiceCollection services)
+{
+    // Configure ARPL (optional)
+    ArplAspNetCore.Setup(cfg => {
+        // Custom error handler for specific status codes
+        cfg.ErrorHandler = error => error switch
+        {
+            // Expected errors get 4xx status codes
+            ValidationError => new BadRequestObjectResult(new { 
+                error = "Validation failed",
+                details = error.Messages 
+            }),
+            NotFoundError => new NotFoundObjectResult(new { 
+                error = "Resource not found",
+                details = error.Messages 
+            }),
+            // Default fallback
+            _ => new ObjectResult(new { 
+                error = "Internal server error",
+                details = error.Messages 
+            })
+            {
+                StatusCode = StatusCodes.Status500InternalServerError
+            }
+        };
+    });
+}
+```
+
+This configuration allows you to:
+- Map specific error types to appropriate HTTP status codes
+- Maintain consistent error response format across your API
+- Handle special cases while keeping the default behavior for common scenarios
 
 ## Contributing 🤝
 
