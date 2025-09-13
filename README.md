@@ -344,7 +344,27 @@ Bespoke errors provide several benefits:
 
 ## Implicit Conversions
 
-ARPL supports implicit conversions between `Either<Error,R>` and `SResult<R>`, making it seamless to work with both types:
+ARPL supports several implicit conversions to make your code more concise and readable.
+
+### Either from Base Types
+
+You can create an `Either<L, R>` instance directly from values of type `L` or `R`:
+
+```csharp
+// Implicitly create a Right-sided Either
+Either<string, int> success = 42;
+
+// Implicitly create a Left-sided Either
+Either<string, int> error = "Something went wrong";
+
+// This is equivalent to:
+var successExplicit = Either<string, int>.Right(42);
+var errorExplicit = Either<string, int>.Left("Something went wrong");
+```
+
+### Between `Either<Error,R>` and `SResult<R>`
+
+ARPL also supports seamless conversion between `Either<Error,R>` and `SResult<R>`:
 
 ```csharp
 // Convert from Either to SResult
@@ -356,7 +376,7 @@ SResult<int> sresult = SResult<int>.Success(42);
 Either<Error, int> converted = sresult; // Implicit conversion
 ```
 
-> **Note:** The implicit conversion only works for `Either<Error, R>` and `SResult<R>`. Attempting to convert other types will throw an exception.
+> **Note:** The implicit conversion between `Either` and `SResult` only works for `Either<Error, R>`. Attempting to convert other `Either` types will result in a compile-time error or throw an exception.
 
 ## StaticFactory Helpers
 

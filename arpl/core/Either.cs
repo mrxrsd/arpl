@@ -86,6 +86,19 @@ namespace Arpl.Core
         public static Either<L, R> Right(R value) => new EitherRight<L, R>(value);
 
         /// <summary>
+        /// Implicitly converts a Left value to an Either
+        /// </summary>
+        /// <param name="left"></param>
+        public static implicit operator Either<L,R>(L left) => Either<L, R>.Left(left);
+
+        /// <summary>
+        /// Implicitly converts a Left value to an Either
+        /// </summary>
+        /// <param name="left"></param>
+        public static implicit operator Either<L, R>(R right) => Either<L, R>.Right(right);
+
+
+        /// <summary>
         /// Implicitly converts an Either type to an SResult when the left type is Error.
         /// </summary>
         /// <param name="either">The Either instance to convert.</param>

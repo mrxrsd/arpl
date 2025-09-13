@@ -66,5 +66,34 @@ namespace Arpl.Tests.Core
             Assert.True(result.IsFail);
             Assert.Equal(error, result.ErrorValue);
         }
+
+
+        [Fact(DisplayName = "Implicit Conversion - To Either preserves Left value")]
+        public void ImplicitConversion_ToEither_PreservesLeft()
+        {
+            // Arrange
+            var error = Errors.New("Test error");
+            
+            // Act
+            Either<Error,string> result = error;
+
+            // Assert
+            Assert.True(result.IsLeft);
+            Assert.Equal(error, result.LeftValue);
+        }
+
+        [Fact(DisplayName = "Implicit Conversion - To Either preserves Right value")]
+        public void ImplicitConversion_ToEither_PreservesRight()
+        {
+            // Arrange
+            var value = "abc";
+
+            // Act
+            Either<Error, string> result = value;
+
+            // Assert
+            Assert.True(result.IsRight);
+            Assert.Equal(value, result.RightValue);
+        }
     }
 }
