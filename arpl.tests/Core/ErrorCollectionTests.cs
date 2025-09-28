@@ -79,5 +79,44 @@ namespace Arpl.Tests.Core
             Assert.Equal("[E1, E2]", collection.Code);
             Assert.Equal("[Expected error, Unexpected error]", collection.Message);
         }
+
+        [Fact]
+        public void Add_WithNonEmptyErrorCollection_FlattensItems()
+        {
+            // Arrange
+            var collection = new ErrorCollection();
+            var e1 = Errors.New("Inner 1", "I1");
+            var e2 = Errors.New("Inner 2", "I2");
+            var nested = new ErrorCollection(new[] { e1, e2 });
+
+            // Act
+            collection.Add(nested);
+
+            // Assert
+            Assert.Equal(2, collection.Count);
+            Assert.Contains(e1, collection.Errors);
+            Assert.Contains(e2, collection.Errors);
+            Assert.Equal("[I1, I2]", collection.Code);
+            Assert.Equal("[Inner 1, Inner 2]", collection.Message);
+        }
+
+        [Fact]
+        public void Add_WithEmptyErrorCollection_Ignores()
+        {
+            // Arrange
+            var collection = new ErrorCollection();
+            var empty = new ErrorCollection();
+
+            // Act
+            collection.Add(empty);
+
+            // Assert
+            Assert.Empty(collection.Errors);
+            Assert.Equal(0, collection.Count);
+            Assert.Equal("[]", collection.Code);
+            Assert.Equal("[]", collection.Message);
+        }
+
+
     }
 }

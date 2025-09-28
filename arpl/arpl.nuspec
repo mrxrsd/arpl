@@ -16,6 +16,7 @@
       <group targetFramework="net6.0" />
       <group targetFramework="net7.0" />
       <group targetFramework="net8.0" />
+	  <group targetFramework="net9.0" />
     </dependencies>
   </metadata>
   <files>

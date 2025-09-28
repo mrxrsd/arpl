@@ -104,7 +104,16 @@ namespace Arpl.Core
         /// <param name="error">The error to add to the collection. If null, the error will be ignored.</param>
         public void Add(Error error)
         {
-            if (error != null)
+            if (error == null) return;
+
+            if (error is ErrorCollection ec)
+            {
+
+                if (ec.Errors.Count == 0) return;
+                Errors.AddRange(ec.Errors);
+
+            }
+            else
             {
                 Errors.Add(error);
             }
